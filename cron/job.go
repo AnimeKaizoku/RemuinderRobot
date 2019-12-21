@@ -1,5 +1,7 @@
 package cron
 
+import "time"
+
 type JobType int
 
 const (
@@ -25,11 +27,20 @@ func (j JobStatus) String() string {
 }
 
 type Job struct {
-	ID          int       `json:"id"`
-	CronID      int       `json:"cron_id"`
-	OwnerID     int       `json:"owner_id"`
-	Schedule    string    `json:"schedule"`
-	Type        JobType   `json:"type"`
-	Status      JobStatus `json:"status"`
-	RunOnlyOnce bool      `json:"run_only_once"`
+	ID             int                `json:"id"`
+	CronID         int                `json:"cron_id"`
+	ChatID         int                `json:"owner_id"`
+	Schedule       string             `json:"schedule"`
+	Type           JobType            `json:"type"`
+	Status         JobStatus          `json:"status"`
+	RunOnlyOnce    bool               `json:"run_only_once"`
+	RepeatSchedule *JobRepeatSchedule `json:"repeat_schedule"`
+	CompletedAt    *time.Time         `json:"completed_at"`
+}
+
+type JobRepeatSchedule struct {
+	Minutes int `json:"minutes"`
+	Hours   int `json:"hours"`
+	Days    int `json:"days"`
+	Months  int `json:"months"`
 }

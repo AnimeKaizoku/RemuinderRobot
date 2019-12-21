@@ -7,103 +7,166 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/dropbox/dropbox-sdk-go-unofficial/dropbox"
-	"github.com/dropbox/dropbox-sdk-go-unofficial/dropbox/files"
-	"github.com/enrico5b1b4/telegram-bot/backup"
-	"github.com/enrico5b1b4/telegram-bot/bot"
+	"github.com/enrico5b1b4/tbwrap"
+	"github.com/enrico5b1b4/telegram-bot/chatpreference"
 	"github.com/enrico5b1b4/telegram-bot/cron"
 	"github.com/enrico5b1b4/telegram-bot/db"
-	"github.com/enrico5b1b4/telegram-bot/healthcheck"
-	"github.com/enrico5b1b4/telegram-bot/parser"
 	"github.com/enrico5b1b4/telegram-bot/reminder"
+	"github.com/enrico5b1b4/telegram-bot/reminder/loader"
+	"github.com/enrico5b1b4/telegram-bot/reminder/remindcronfunc"
+	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate"
+	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindat"
+	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/reminddaymonthyear"
+	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/reminddaymonthyearhourmin"
+	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindevery"
+	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindeverydaynumber"
+	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindeverydaynumberhourmin"
+	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindeverydaynumbermonth"
+	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindeverydaynumbermonthhourmin"
+	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindin"
+	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindwhen"
+	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindwhenhourmin"
+	"github.com/enrico5b1b4/telegram-bot/reminder/reminddelete"
+	"github.com/enrico5b1b4/telegram-bot/reminder/reminddetail"
+	"github.com/enrico5b1b4/telegram-bot/reminder/remindhelp"
+	"github.com/enrico5b1b4/telegram-bot/reminder/remindlist"
 )
 
-// /remind me on the 30 of november 2019 buy bread, milk and eggs without hour minutes
+// nolint:funlen
 func main() {
-	dbFile := MustGetEnv("DB_FILE") // TODO read from env
+	dbFile := MustGetEnv("DB_FILE")
 	telegramBotToken := MustGetEnv("TELEGRAM_BOT_TOKEN")
-	allowedUsers := parseUsersAndGroups(MustGetEnv("ALLOWED_USERS"))
-	allowedGroups := parseUsersAndGroups(MustGetEnv("ALLOWED_GROUPS"))
+	allowedChats := parseAllowedChats(MustGetEnv("ALLOWED_CHATS"))
 
-	database, err := db.SetupDB(dbFile, append(allowedUsers, allowedGroups...))
+	database, err := db.SetupDB(dbFile, allowedChats)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer database.Close()
 
-	botConfig := bot.Config{
-		Token:         telegramBotToken, // TODO read from env
-		AllowedUsers:  allowedUsers,     // TODO read from env
-		AllowedGroups: allowedGroups,    // TODO read from env
+	botConfig := tbwrap.Config{
+		Token:        telegramBotToken,
+		AllowedChats: allowedChats,
 	}
-	telegramBot, err := bot.NewBot(botConfig)
-
-	//telegramBot.Send(&tb.User{ID: 1234567890}, "starting Bot")
-
-	dbxConfig := dropbox.Config{
-		Token:    "replaceME",
-		LogLevel: dropbox.LogOff,
+	telegramBot, err := tbwrap.NewBot(botConfig)
+	if err != nil {
+		log.Println(err)
+		return
 	}
-	dbxFilesClient := files.New(dbxConfig)
+
 	scheduler := cron.NewScheduler()
-	reminderStore := reminder.NewReminderStore(database)
-	reminderService := reminder.NewReminderService(telegramBot, scheduler, reminderStore)
-	reminderParser := parser.NewParser(reminder.ReminderRegexes)
-	reminderHandlers := reminder.NewReminderHandlers(telegramBot, reminderService, reminderParser, scheduler)
-	healthcheckStore := healthcheck.NewHealthcheckStore(database)
-	healthcheckService := healthcheck.NewHealtcheckService(telegramBot, scheduler, healthcheckStore)
-	backupStore := backup.NewBackupStore(database)
-	_ = backup.NewBackupService(telegramBot, scheduler, backupStore, dbxFilesClient)
+	reminderStore := reminder.NewStore(database)
+	chatPreferenceStore := chatpreference.NewStore(database)
+	chatPreferenceService := chatpreference.NewService(chatPreferenceStore)
+	remindCronFuncService := remindcronfunc.NewService(telegramBot, scheduler, reminderStore, chatPreferenceStore)
+	remindListService := remindlist.NewService(reminderStore, scheduler, chatPreferenceStore)
+	remindDeleteService := reminddelete.NewService(reminderStore, scheduler)
+	remindDateService := reminddate.NewService(telegramBot, remindCronFuncService, reminderStore, scheduler, chatPreferenceStore)
+	remindDetailService := reminddetail.NewService(reminderStore, scheduler, chatPreferenceStore)
+	reminderLoader := loader.NewService(telegramBot, scheduler, reminderStore, chatPreferenceStore, remindCronFuncService)
+	remindDetailButtons := reminddetail.NewButtons()
+	remindListButtons := remindlist.NewButtons()
 
-	reminderStore.Debug()
+	chatPreferenceService.CreateDefaultChatPreferences(allowedChats)
 
 	// check if DB exists and load schedules
-	healthchecksLoaded, err := healthcheckService.LoadExistingSchedules()
-	if err != nil {
-		panic(err)
-	}
-	log.Printf("loaded %d healthchecks", healthchecksLoaded)
-
-	remindersLoaded, err := reminderService.LoadExistingSchedules()
+	remindersLoaded, err := reminderLoader.LoadExistingSchedules()
 	if err != nil {
 		panic(err)
 	}
 	log.Printf("loaded %d reminders", remindersLoaded)
 
-	// Setup default healthchecks and backups
-	//_, err = healthcheckService.CreateHealthcheck("@every 30s", "hello I'm alive", 1234567890)
-	//if err != nil {
-	//	panic(err)
-	//}
-
-	//reminder.RegisterHandlers(telegramBot, reminderService, reminderParser, scheduler)
-	//reminder.RegisterHandlers(telegramBot, reminderHandlers)
-
-	telegramBot.AddMultiRegExp([]string{
-		`\/reminddetail (?P<reminderID>\d{1,5})`,
-		`\/reminddetail_(?P<reminderID>\d{1,5})`,
-	}, reminderHandlers.HandleNewRemindDetail)
-	telegramBot.AddMultiRegExp([]string{
-		`\/reminddelete (?P<reminderID>\d{1,5})`,
-		`\/reminddelete_(?P<reminderID>\d{1,5})`,
-	}, reminderHandlers.HandleNewRemindDelete)
-	telegramBot.Add("/remindlist", reminderHandlers.HandleNewRemindList)
-	telegramBot.AddRegExp(
-		`\/remind (?P<who>me|group) on the (?P<day>\d{1,2})(?:(st|nd|rd|th))? of (?P<month>october|november|december) (?P<year>\d{4}) (?P<message>.*)`,
-		reminderHandlers.HandleNewRemindDayMonthYear,
+	telegramBot.Handle(remindlist.HandlePattern, remindlist.HandleRemindList(remindListService, remindListButtons))
+	telegramBot.Handle(remindhelp.HandlePattern, remindhelp.HandleRemindHelp())
+	telegramBot.HandleMultiRegExp(reminddetail.HandlePattern, reminddetail.HandleRemindDetail(remindDetailService, reminddetail.NewButtons()))
+	telegramBot.HandleMultiRegExp(reminddelete.HandlePattern, reminddelete.HandleRemindDelete(remindDeleteService))
+	telegramBot.HandleRegExp(
+		reminddaymonthyearhourmin.HandlePattern,
+		reminddaymonthyearhourmin.HandleRemindDayMonthYearHourMinute(remindDateService),
 	)
-	telegramBot.AddRegExp(
-		`\/remind (?P<who>me|group) on the (?P<day>\d{1,2})(?:(st|nd|rd|th))? of (?P<month>october|november|december) (?P<year>\d{4}) at (?P<hour>\d{1,2}):(?P<minute>\d{1,2}) (?P<message>.*)`,
-		reminderHandlers.HandleNewRemindDayMonthYearHourMin,
+	telegramBot.HandleRegExp(
+		reminddaymonthyear.HandlePattern,
+		reminddaymonthyear.HandleRemindDayMonthYear(remindDateService),
 	)
-	telegramBot.AddButton(reminderHandlers.ReminderButtons["ReminderDetailDeleteBtn"], reminderHandlers.HandleNewReminderDetailDeleteBtn)
-	telegramBot.AddButton(reminderHandlers.ReminderButtons["ReminderDetailShowReminderCommandBtn"], reminderHandlers.HandleNewReminderShowReminderCommandBtn)
+	telegramBot.HandleRegExp(
+		remindeverydaynumberhourmin.HandlePattern,
+		remindeverydaynumberhourmin.HandleRemindEveryDayNumberHourMin(remindDateService),
+	)
+	telegramBot.HandleRegExp(
+		remindeverydaynumber.HandlePattern,
+		remindeverydaynumber.HandleRemindEveryDayNumber(remindDateService),
+	)
+	telegramBot.HandleRegExp(
+		remindeverydaynumbermonthhourmin.HandlePattern,
+		remindeverydaynumbermonthhourmin.HandleRemindEveryDayNumberMonthHourMin(remindDateService),
+	)
+	telegramBot.HandleRegExp(
+		remindeverydaynumbermonth.HandlePattern,
+		remindeverydaynumbermonth.HandleRemindEveryDayNumberMonth(remindDateService),
+	)
+	telegramBot.HandleRegExp(
+		remindin.HandlePattern3,
+		remindin.HandleRemindIn(remindDateService),
+	)
+	telegramBot.HandleRegExp(
+		remindin.HandlePattern2,
+		remindin.HandleRemindIn(remindDateService),
+	)
+	telegramBot.HandleRegExp(
+		remindin.HandlePattern1,
+		remindin.HandleRemindIn(remindDateService),
+	)
+	telegramBot.HandleRegExp(
+		remindevery.HandlePattern3,
+		remindevery.HandleRemindEvery(remindDateService),
+	)
+	telegramBot.HandleRegExp(
+		remindevery.HandlePattern2,
+		remindevery.HandleRemindEvery(remindDateService),
+	)
+	telegramBot.HandleRegExp(
+		remindevery.HandlePattern1,
+		remindevery.HandleRemindEvery(remindDateService),
+	)
+	telegramBot.HandleRegExp(
+		remindwhenhourmin.HandlePattern,
+		remindwhenhourmin.HandleRemindWhenHourMin(remindDateService),
+	)
+	telegramBot.HandleRegExp(
+		remindwhen.HandlePattern,
+		remindwhen.HandleRemindWhen(remindDateService),
+	)
+	telegramBot.HandleRegExp(
+		remindat.HandlePattern,
+		remindat.HandleRemindAt(remindDateService),
+	)
+
+	telegramBot.HandleButton(
+		remindDetailButtons[reminddetail.ReminderDetailCloseCommandBtn],
+		reminddetail.HandleCloseBtn(remindDetailButtons),
+	)
+	telegramBot.HandleButton(
+		remindDetailButtons[reminddetail.ReminderDetailDeleteBtn],
+		reminddetail.HandleReminderDetailDeleteBtn(remindDetailService, remindDetailButtons),
+	)
+	telegramBot.HandleButton(
+		remindDetailButtons[reminddetail.ReminderDetailShowReminderCommandBtn],
+		reminddetail.HandleReminderShowReminderCommandBtn(remindDetailService, remindDetailButtons),
+	)
+	telegramBot.HandleButton(
+		remindListButtons[remindlist.ReminderListRemoveCompletedRemindersBtn],
+		remindlist.HandleReminderListRemoveCompletedRemindersBtn(remindListService, remindListButtons),
+	)
+	telegramBot.HandleButton(
+		remindListButtons[remindlist.ReminderListCloseCommandBtn],
+		remindlist.HandleCloseBtn(remindListButtons),
+	)
 
 	scheduler.Start()
 	telegramBot.Start()
 }
 
-func parseUsersAndGroups(list string) []int {
+func parseAllowedChats(list string) []int {
 	sepList := strings.Split(list, ",")
 	intList := make([]int, len(sepList))
 	var err error

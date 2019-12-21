@@ -1,7 +1,10 @@
 package reminder
 
+//go:generate mockgen -destination=./mocks/mock_Storer.go -package=mocks github.com/enrico5b1b4/telegram-bot/reminder Storer
+
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
 
@@ -9,24 +12,33 @@ import (
 )
 
 var RemindersBucket = []byte("reminders")
+var ErrNotFound = errors.New("reminder not found")
 
-type ReminderStore struct {
+type Storer interface {
+	CreateReminder(r *Reminder) (int, error)
+	UpdateReminder(r *Reminder) error
+	DeleteReminder(chatID, ID int) error
+	GetReminder(chatID, ID int) (*Reminder, error)
+	GetAllRemindersByChat() (map[int][]Reminder, error)
+	GetAllRemindersByChatID(chatID int) ([]Reminder, error)
+}
+
+type Store struct {
 	db *bolt.DB
 }
 
-func NewReminderStore(db *bolt.DB) *ReminderStore {
-	return &ReminderStore{db: db}
+func NewStore(db *bolt.DB) *Store {
+	return &Store{db: db}
 }
 
-// CreateUser saves u to the store. The new user ID is set on u once the data is persisted.
-func (s *ReminderStore) CreateReminder(r *Reminder) (int, error) {
+func (s *Store) CreateReminder(r *Reminder) (int, error) {
 	var ID int
 
 	err := s.db.Update(func(tx *bolt.Tx) error {
 		reminderBucket := tx.Bucket(RemindersBucket)
-		ownerBucket := reminderBucket.Bucket(itob(r.OwnerID))
+		chatBucket := reminderBucket.Bucket(itob(r.ChatID))
 
-		id, err := ownerBucket.NextSequence()
+		id, err := chatBucket.NextSequence()
 		if err != nil {
 			return err
 		}
@@ -38,7 +50,7 @@ func (s *ReminderStore) CreateReminder(r *Reminder) (int, error) {
 			return err
 		}
 
-		return ownerBucket.Put(itob(r.ID), buf)
+		return chatBucket.Put(itob(r.ID), buf)
 	})
 	if err != nil {
 		return 0, err
@@ -47,64 +59,57 @@ func (s *ReminderStore) CreateReminder(r *Reminder) (int, error) {
 	return ID, nil
 }
 
-func (s *ReminderStore) UpdateReminder(r *Reminder) error {
+func (s *Store) UpdateReminder(r *Reminder) error {
 	return s.db.Update(func(tx *bolt.Tx) error {
 		reminderBucket := tx.Bucket(RemindersBucket)
-		ownerBucket := reminderBucket.Bucket(itob(r.OwnerID))
+		chatBucket := reminderBucket.Bucket(itob(r.ChatID))
 
 		buf, err := json.Marshal(r)
 		if err != nil {
 			return err
 		}
 
-		return ownerBucket.Put(itob(r.ID), buf)
+		return chatBucket.Put(itob(r.ID), buf)
 	})
 }
 
-func (s *ReminderStore) GetAllRemindersByUserAndGroup() (map[int][]Reminder, error) {
-	remindersByUserAndGroup := map[int][]Reminder{}
+func (s *Store) GetAllRemindersByChat() (map[int][]Reminder, error) {
+	remindersByChat := map[int][]Reminder{}
 
 	err := s.db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket(RemindersBucket)
 
-		s.Debug()
+		return b.ForEach(func(chatID, v []byte) error {
+			chatBucket := b.Bucket(chatID)
 
-		return b.ForEach(func(ownerID, v []byte) error {
-			fmt.Printf("ownerID=%s, value=%s\n", ownerID, v)
-			userGroupBucket := b.Bucket(ownerID)
-
-			return userGroupBucket.ForEach(func(k1, v1 []byte) error {
+			return chatBucket.ForEach(func(k1, v1 []byte) error {
 				var reminder Reminder
-				fmt.Printf("key=%s, value=%s\n", ownerID, v)
 
 				err := json.Unmarshal(v1, &reminder)
 				if err != nil {
 					return err
 				}
 
-				remindersByUserAndGroup[btoi(ownerID)] = append(remindersByUserAndGroup[btoi(ownerID)], reminder)
+				remindersByChat[btoi(chatID)] = append(remindersByChat[btoi(chatID)], reminder)
 				return nil
 			})
-			return nil
 		})
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Printf("remindersByUserAndGroup: %#v\n", remindersByUserAndGroup)
-
-	return remindersByUserAndGroup, nil
+	return remindersByChat, nil
 }
 
-func (s *ReminderStore) GetAllRemindersByOwnerID(ownerID int) ([]Reminder, error) {
-	remindersByUserAndGroup := []Reminder{}
+func (s *Store) GetAllRemindersByChatID(chatID int) ([]Reminder, error) {
+	remindersByChat := []Reminder{}
 
 	err := s.db.View(func(tx *bolt.Tx) error {
 		rootBucket := tx.Bucket(RemindersBucket)
-		ownerBucket := rootBucket.Bucket(itob(ownerID))
+		chatBucket := rootBucket.Bucket(itob(chatID))
 
-		return ownerBucket.ForEach(func(k1, v1 []byte) error {
+		return chatBucket.ForEach(func(k1, v1 []byte) error {
 			var reminder Reminder
 
 			err := json.Unmarshal(v1, &reminder)
@@ -112,7 +117,7 @@ func (s *ReminderStore) GetAllRemindersByOwnerID(ownerID int) ([]Reminder, error
 				return err
 			}
 
-			remindersByUserAndGroup = append(remindersByUserAndGroup, reminder)
+			remindersByChat = append(remindersByChat, reminder)
 			return nil
 		})
 	})
@@ -120,16 +125,19 @@ func (s *ReminderStore) GetAllRemindersByOwnerID(ownerID int) ([]Reminder, error
 		return nil, err
 	}
 
-	return remindersByUserAndGroup, nil
+	return remindersByChat, nil
 }
 
-func (s *ReminderStore) GetReminder(ownerID, ID int) (*Reminder, error) {
+func (s *Store) GetReminder(chatID, id int) (*Reminder, error) {
 	var reminder Reminder
 
 	err := s.db.View(func(tx *bolt.Tx) error {
 		rootBucket := tx.Bucket(RemindersBucket)
-		ownerBucket := rootBucket.Bucket(itob(ownerID))
-		v := ownerBucket.Get(itob(ID))
+		chatBucket := rootBucket.Bucket(itob(chatID))
+		v := chatBucket.Get(itob(id))
+		if v == nil {
+			return ErrNotFound
+		}
 
 		err := json.Unmarshal(v, &reminder)
 		if err != nil {
@@ -144,25 +152,23 @@ func (s *ReminderStore) GetReminder(ownerID, ID int) (*Reminder, error) {
 	return &reminder, nil
 }
 
-func (s *ReminderStore) DeleteReminder(ownerID, ID int) error {
+func (s *Store) DeleteReminder(chatID, id int) error {
 	return s.db.Update(func(tx *bolt.Tx) error {
 		rootBucket := tx.Bucket(RemindersBucket)
-		ownerBucket := rootBucket.Bucket(itob(ownerID))
+		chatBucket := rootBucket.Bucket(itob(chatID))
 
-		return ownerBucket.Delete(itob(ID))
+		return chatBucket.Delete(itob(id))
 	})
 }
 
-func (s *ReminderStore) Debug() error {
+func (s *Store) Debug() error {
 	return s.db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket(RemindersBucket)
 
-		b.ForEach(func(k, v []byte) error {
+		return b.ForEach(func(k, v []byte) error {
 			fmt.Printf("key=%s, value=%s\n", k, v)
 			return nil
 		})
-
-		return nil
 	})
 }
 

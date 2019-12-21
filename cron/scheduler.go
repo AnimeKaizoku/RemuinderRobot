@@ -1,5 +1,7 @@
 package cron
 
+//go:generate mockgen -destination=./mocks/mock_Scheduler.go -package=mocks github.com/enrico5b1b4/telegram-bot/cron Scheduler
+
 import (
 	"fmt"
 	"time"
@@ -7,12 +9,14 @@ import (
 	"github.com/robfig/cron/v3"
 )
 
-type Scheduler struct {
-	c *cron.Cron
+type Scheduler interface {
+	Add(spec string, cmd func()) (int, error)
+	Remove(ID int)
+	GetEntryByID(ID int) Entry
 }
 
-type Runner interface {
-	Run()
+type JobScheduler struct {
+	c *cron.Cron
 }
 
 type Entry struct {
@@ -21,33 +25,31 @@ type Entry struct {
 	Prev time.Time
 }
 
-func NewScheduler() *Scheduler {
-	return &Scheduler{
-		c: cron.New(cron.WithLocation(time.UTC)),
+func NewScheduler() *JobScheduler {
+	return &JobScheduler{
+		c: cron.New(),
 	}
 }
 
-func (s *Scheduler) Start() {
+func (s *JobScheduler) Start() {
 	s.c.Start()
-
-	return
 }
 
-func (s *Scheduler) Add(spec string, cmd func()) (int, error) {
-	entryId, err := s.c.AddFunc(spec, cmd)
+func (s *JobScheduler) Add(spec string, cmd func()) (int, error) {
+	entryID, err := s.c.AddFunc(spec, cmd)
 
 	for i := range s.c.Entries() {
 		fmt.Printf("%#v\n", s.c.Entries()[i])
 	}
 
-	return int(entryId), err
+	return int(entryID), err
 }
 
-func (s *Scheduler) Remove(ID int) {
-	s.c.Remove(cron.EntryID(ID))
+func (s *JobScheduler) Remove(id int) {
+	s.c.Remove(cron.EntryID(id))
 }
 
-func (s *Scheduler) GetAllEntries(ID int) []Entry {
+func (s *JobScheduler) GetAllEntries(id int) []Entry {
 	var entries []Entry
 
 	for _, e := range s.c.Entries() {
@@ -57,12 +59,13 @@ func (s *Scheduler) GetAllEntries(ID int) []Entry {
 	return entries
 }
 
-func (s *Scheduler) GetEntryByID(ID int) Entry {
-	cronEntry := s.c.Entry(cron.EntryID(ID))
+func (s *JobScheduler) GetEntryByID(id int) Entry {
+	cronEntry := s.c.Entry(cron.EntryID(id))
 
 	return convertToEntry(cronEntry)
 }
 
+// nolint:gocritic
 func convertToEntry(entry cron.Entry) Entry {
 	return Entry{
 		ID:   int(entry.ID),

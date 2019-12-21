@@ -4,51 +4,41 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/enrico5b1b4/telegram-bot/backup"
-	"github.com/enrico5b1b4/telegram-bot/healthcheck"
+	"github.com/enrico5b1b4/telegram-bot/chatpreference"
 	"github.com/enrico5b1b4/telegram-bot/reminder"
 	"go.etcd.io/bbolt"
 )
 
-func SetupDB(filename string, usersAndGroups []int) (*bbolt.DB, error) {
+func SetupDB(filename string, chats []int) (*bbolt.DB, error) {
 	db, err := bbolt.Open(filename, 0600, nil)
 	if err != nil {
 		return nil, fmt.Errorf("could not open db, %#v", err)
 	}
 
-	err = db.Update(func(tx *bbolt.Tx) error {
-		//tx.DeleteBucket(reminder.RemindersBucket)
+	updateErr := db.Update(func(tx *bbolt.Tx) error {
 		rootReminderBucket, err := tx.CreateBucketIfNotExists(reminder.RemindersBucket)
 		if err != nil {
 			return fmt.Errorf("could not create reminders bucket: %#v", err)
 		}
 
-		// create individual buckets for users and groups
-		for i := range usersAndGroups {
-			_, err := rootReminderBucket.CreateBucketIfNotExists(itob(usersAndGroups[i]))
+		// create individual buckets for chats
+		for i := range chats {
+			_, err = rootReminderBucket.CreateBucketIfNotExists(itob(chats[i]))
 			if err != nil {
-				return fmt.Errorf("could not create reminders bucket for user/group: %d %#v", usersAndGroups[i], err)
+				return fmt.Errorf("could not create reminders bucket for chat: %d %#v", chats[i], err)
 			}
 		}
 
-		//tx.DeleteBucket(healthcheck.HealthchecksBucket)
-		_, err = tx.CreateBucketIfNotExists(healthcheck.HealthchecksBucket)
+		_, err = tx.CreateBucketIfNotExists(chatpreference.ChatPreferencesBucket)
 		if err != nil {
-			return fmt.Errorf("could not create healthchecks bucket: %#v", err)
-		}
-
-		//tx.DeleteBucket(backup.BackupsBucket)
-		_, err = tx.CreateBucketIfNotExists(backup.BackupsBucket)
-		if err != nil {
-			return fmt.Errorf("could not create backups bucket: %#v", err)
+			return fmt.Errorf("could not create chat preferences bucket: %#v", err)
 		}
 
 		return nil
 	})
-	if err != nil {
-		return nil, fmt.Errorf("could not set up buckets, %#v", err)
+	if updateErr != nil {
+		return nil, fmt.Errorf("could not set up buckets, %#v", updateErr)
 	}
-	fmt.Println("DB Setup Done")
 
 	return db, nil
 }
