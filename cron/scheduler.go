@@ -3,7 +3,6 @@ package cron
 //go:generate mockgen -destination=./mocks/mock_Scheduler.go -package=mocks github.com/enrico5b1b4/telegram-bot/cron Scheduler
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/robfig/cron/v3"
@@ -37,10 +36,6 @@ func (s *JobScheduler) Start() {
 
 func (s *JobScheduler) Add(spec string, cmd func()) (int, error) {
 	entryID, err := s.c.AddFunc(spec, cmd)
-
-	for i := range s.c.Entries() {
-		fmt.Printf("%#v\n", s.c.Entries()[i])
-	}
 
 	return int(entryID), err
 }
