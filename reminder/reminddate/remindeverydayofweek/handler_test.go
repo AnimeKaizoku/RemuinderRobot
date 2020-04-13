@@ -19,10 +19,10 @@ import (
 func TestHandleRemindEveryDayOfWeek(t *testing.T) {
 	handlerPattern, err := regexp.Compile(remindeverydayofweek.HandlePattern)
 	require.NoError(t, err)
-	text := "/remind me every monday buy milk"
 	chat := &tb.Chat{ID: int64(1)}
 
 	t.Run("success without hours and minutes", func(t *testing.T) {
+		text := "/remind me every monday buy milk"
 		mockCtrl := gomock.NewController(t)
 		defer mockCtrl.Finish()
 		bot := fakeBot.NewBot()
@@ -74,6 +74,7 @@ func TestHandleRemindEveryDayOfWeek(t *testing.T) {
 	})
 
 	t.Run("failure", func(t *testing.T) {
+		text := "/remind me every monday buy milk"
 		mockCtrl := gomock.NewController(t)
 		defer mockCtrl.Finish()
 		bot := fakeBot.NewBot()

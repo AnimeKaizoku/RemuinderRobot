@@ -17,16 +17,12 @@ import (
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindat"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/reminddaymonthyear"
-	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/reminddaymonthyearhourmin"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindevery"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindeverydaynumber"
-	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindeverydaynumberhourmin"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindeverydaynumbermonth"
-	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindeverydaynumbermonthhourmin"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindeverydayofweek"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindin"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindwhen"
-	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindwhenhourmin"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddelete"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddetail"
 	"github.com/enrico5b1b4/telegram-bot/reminder/remindhelp"
@@ -84,24 +80,12 @@ func main() {
 	telegramBot.HandleMultiRegExp(reminddetail.HandlePattern, reminddetail.HandleRemindDetail(remindDetailService, reminddetail.NewButtons()))
 	telegramBot.HandleMultiRegExp(reminddelete.HandlePattern, reminddelete.HandleRemindDelete(remindDeleteService))
 	telegramBot.HandleRegExp(
-		reminddaymonthyearhourmin.HandlePattern,
-		reminddaymonthyearhourmin.HandleRemindDayMonthYearHourMinute(remindDateService),
-	)
-	telegramBot.HandleRegExp(
 		reminddaymonthyear.HandlePattern,
 		reminddaymonthyear.HandleRemindDayMonthYear(remindDateService),
 	)
 	telegramBot.HandleRegExp(
-		remindeverydaynumberhourmin.HandlePattern,
-		remindeverydaynumberhourmin.HandleRemindEveryDayNumberHourMin(remindDateService),
-	)
-	telegramBot.HandleRegExp(
 		remindeverydaynumber.HandlePattern,
 		remindeverydaynumber.HandleRemindEveryDayNumber(remindDateService),
-	)
-	telegramBot.HandleRegExp(
-		remindeverydaynumbermonthhourmin.HandlePattern,
-		remindeverydaynumbermonthhourmin.HandleRemindEveryDayNumberMonthHourMin(remindDateService),
 	)
 	telegramBot.HandleRegExp(
 		remindeverydaynumbermonth.HandlePattern,
@@ -130,10 +114,6 @@ func main() {
 	telegramBot.HandleRegExp(
 		remindevery.HandlePattern1,
 		remindevery.HandleRemindEvery(remindDateService),
-	)
-	telegramBot.HandleRegExp(
-		remindwhenhourmin.HandlePattern,
-		remindwhenhourmin.HandleRemindWhenHourMin(remindDateService),
 	)
 	telegramBot.HandleRegExp(
 		remindwhen.HandlePattern,

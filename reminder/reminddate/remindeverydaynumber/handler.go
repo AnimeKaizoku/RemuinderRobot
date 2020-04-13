@@ -11,10 +11,13 @@ import (
 type Message struct {
 	Who     string `regexpGroup:"who"`
 	Day     int    `regexpGroup:"day"`
+	Hour    *int   `regexpGroup:"hour"`
+	Minute  *int   `regexpGroup:"minute"`
 	Message string `regexpGroup:"message"`
 }
 
-const HandlePattern = `\/remind (?P<who>me|chat) every (?P<day>\d{1,2})(?:(st|nd|rd|th))? of the month (?P<message>.*)`
+// nolint:lll
+const HandlePattern = `\/remind (?P<who>me|chat) every (?P<day>\d{1,2})(?:(st|nd|rd|th))? of the month ?(at (?P<hour>\d{1,2}):(?P<minute>\d{1,2}))? (?P<message>.*)`
 
 func HandleRemindEveryDayNumber(service reminddate.Servicer) func(c tbwrap.Context) error {
 	return func(c tbwrap.Context) error {
@@ -36,10 +39,20 @@ func HandleRemindEveryDayNumber(service reminddate.Servicer) func(c tbwrap.Conte
 }
 
 func mapMessageToReminderDateTime(m *Message) reminder.RepeatableDateTime {
-	return reminder.RepeatableDateTime{
+	rdt := reminder.RepeatableDateTime{
 		DayOfMonth: strconv.Itoa(m.Day),
 		Month:      "*",
 		Hour:       "9",
 		Minute:     "0",
 	}
+
+	if m.Hour != nil {
+		rdt.Hour = strconv.Itoa(*m.Hour)
+
+		if m.Minute != nil {
+			rdt.Minute = strconv.Itoa(*m.Minute)
+		}
+	}
+
+	return rdt
 }

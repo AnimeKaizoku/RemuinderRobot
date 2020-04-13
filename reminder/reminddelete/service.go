@@ -32,7 +32,7 @@ func (s *Service) DeleteReminder(chatID, id int) error {
 	}
 
 	if chatID != r.ChatID {
-		return errors.New("unauthorized to delete reminder")
+		return errors.New("unauthorised to delete reminder")
 	}
 
 	s.scheduler.Remove(r.CronID)

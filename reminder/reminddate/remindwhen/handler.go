@@ -1,7 +1,7 @@
 package remindwhen
 
 import (
-	"errors"
+	"fmt"
 
 	"github.com/enrico5b1b4/tbwrap"
 	"github.com/enrico5b1b4/telegram-bot/reminder"
@@ -11,11 +11,13 @@ import (
 type Message struct {
 	Who     string `regexpGroup:"who"`
 	When    string `regexpGroup:"when"`
+	Hour    *int   `regexpGroup:"hour"`
+	Minute  *int   `regexpGroup:"minute"`
 	Message string `regexpGroup:"message"`
 }
 
 // nolint:lll
-const HandlePattern = `\/remind (?P<who>me|chat) (?P<when>this afternoon|this evening|tonight|tomorrow morning|tomorrow afternoon|tomorrow evening|tomorrow) (?P<message>.*)`
+const HandlePattern = `\/remind (?P<who>me|chat) (?P<when>this afternoon|this evening|tonight|tomorrow morning|tomorrow afternoon|tomorrow evening|tomorrow) ?(at (?P<hour>\d{1,2}):(?P<minute>\d{1,2}))? (?P<message>.*)`
 
 func HandleRemindWhen(service reminddate.Servicer) func(c tbwrap.Context) error {
 	return func(c tbwrap.Context) error {
@@ -40,38 +42,50 @@ func HandleRemindWhen(service reminddate.Servicer) func(c tbwrap.Context) error 
 }
 
 func mapMessageToReminderWordDateTime(m *Message) (reminder.WordDateTime, error) {
+	var wdt reminder.WordDateTime
+
 	switch m.When {
 	case "this afternoon":
-		return reminder.WordDateTime{
+		wdt = reminder.WordDateTime{
 			When:   reminder.Today,
 			Hour:   15,
 			Minute: 0,
-		}, nil
+		}
 	case "this evening", "tonight":
-		return reminder.WordDateTime{
+		wdt = reminder.WordDateTime{
 			When:   reminder.Today,
 			Hour:   20,
 			Minute: 0,
-		}, nil
+		}
 	case "tomorrow", "tomorrow morning":
-		return reminder.WordDateTime{
+		wdt = reminder.WordDateTime{
 			When:   reminder.Tomorrow,
 			Hour:   9,
 			Minute: 0,
-		}, nil
+		}
 	case "tomorrow afternoon":
-		return reminder.WordDateTime{
+		wdt = reminder.WordDateTime{
 			When:   reminder.Tomorrow,
 			Hour:   15,
 			Minute: 0,
-		}, nil
+		}
 	case "tomorrow evening":
-		return reminder.WordDateTime{
+		wdt = reminder.WordDateTime{
 			When:   reminder.Tomorrow,
 			Hour:   20,
 			Minute: 0,
-		}, nil
+		}
+	default:
+		return wdt, fmt.Errorf("time not recognised: %s", m.When)
 	}
 
-	return reminder.WordDateTime{}, errors.New("no match")
+	if m.Hour != nil {
+		wdt.Hour = *m.Hour
+
+		if m.Minute != nil {
+			wdt.Minute = *m.Minute
+		}
+	}
+
+	return wdt, nil
 }
