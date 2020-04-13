@@ -23,6 +23,7 @@ import (
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindeverydaynumberhourmin"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindeverydaynumbermonth"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindeverydaynumbermonthhourmin"
+	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindeverydayofweek"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindin"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindwhen"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindwhenhourmin"
@@ -30,6 +31,7 @@ import (
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddetail"
 	"github.com/enrico5b1b4/telegram-bot/reminder/remindhelp"
 	"github.com/enrico5b1b4/telegram-bot/reminder/remindlist"
+	"github.com/enrico5b1b4/telegram-bot/reminder/scheduler"
 )
 
 // nolint:funlen
@@ -54,16 +56,17 @@ func main() {
 		return
 	}
 
-	scheduler := cron.NewScheduler()
+	cronScheduler := cron.NewScheduler()
 	reminderStore := reminder.NewStore(database)
 	chatPreferenceStore := chatpreference.NewStore(database)
 	chatPreferenceService := chatpreference.NewService(chatPreferenceStore)
-	remindCronFuncService := remindcronfunc.NewService(telegramBot, scheduler, reminderStore, chatPreferenceStore)
-	remindListService := remindlist.NewService(reminderStore, scheduler, chatPreferenceStore)
-	remindDeleteService := reminddelete.NewService(reminderStore, scheduler)
-	remindDateService := reminddate.NewService(telegramBot, remindCronFuncService, reminderStore, scheduler, chatPreferenceStore)
-	remindDetailService := reminddetail.NewService(reminderStore, scheduler, chatPreferenceStore)
-	reminderLoader := loader.NewService(telegramBot, scheduler, reminderStore, chatPreferenceStore, remindCronFuncService)
+	remindCronFuncService := remindcronfunc.NewService(telegramBot, cronScheduler, reminderStore, chatPreferenceStore)
+	remindListService := remindlist.NewService(reminderStore, cronScheduler, chatPreferenceStore)
+	remindDeleteService := reminddelete.NewService(reminderStore, cronScheduler)
+	reminderScheduler := scheduler.NewReminderScheduler(telegramBot, remindCronFuncService, reminderStore, cronScheduler, chatPreferenceStore)
+	remindDateService := reminddate.NewService(reminderScheduler, reminderStore, chatPreferenceStore, reminder.RealTimeNow)
+	remindDetailService := reminddetail.NewService(reminderStore, cronScheduler, chatPreferenceStore)
+	reminderLoader := loader.NewService(telegramBot, cronScheduler, reminderStore, chatPreferenceStore, remindCronFuncService)
 	remindDetailButtons := reminddetail.NewButtons()
 	remindListButtons := remindlist.NewButtons()
 
@@ -137,6 +140,10 @@ func main() {
 		remindwhen.HandleRemindWhen(remindDateService),
 	)
 	telegramBot.HandleRegExp(
+		remindeverydayofweek.HandlePattern,
+		remindeverydayofweek.HandleRemindEveryDayOfWeek(remindDateService),
+	)
+	telegramBot.HandleRegExp(
 		remindat.HandlePattern,
 		remindat.HandleRemindAt(remindDateService),
 	)
@@ -162,7 +169,7 @@ func main() {
 		remindlist.HandleCloseBtn(remindListButtons),
 	)
 
-	scheduler.Start()
+	cronScheduler.Start()
 	telegramBot.Start()
 }
 

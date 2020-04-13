@@ -66,7 +66,7 @@ func (mr *MockServicerMockRecorder) AddReminderOnWordDateTime(chatID, command, d
 }
 
 // AddRepeatableReminderOnDateTime mocks base method
-func (m *MockServicer) AddRepeatableReminderOnDateTime(chatID int, command string, dateTime reminder.RepeatableDateTime, message string) (time.Time, error) {
+func (m *MockServicer) AddRepeatableReminderOnDateTime(chatID int, command string, dateTime *reminder.RepeatableDateTime, message string) (time.Time, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddRepeatableReminderOnDateTime", chatID, command, dateTime, message)
 	ret0, _ := ret[0].(time.Time)

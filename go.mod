@@ -3,7 +3,7 @@ module github.com/enrico5b1b4/telegram-bot
 go 1.13
 
 require (
-	github.com/enrico5b1b4/tbwrap v0.0.7
+	github.com/enrico5b1b4/tbwrap v0.0.8
 	github.com/golang/mock v1.4.3
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/stretchr/testify v1.5.1

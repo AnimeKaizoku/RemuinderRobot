@@ -24,10 +24,11 @@ type DateTime struct {
 }
 
 type RepeatableDateTime struct {
-	Day    string
-	Month  string
-	Hour   string
-	Minute string
+	DayOfMonth string
+	DayOfWeek  string
+	Month      string
+	Hour       string
+	Minute     string
 }
 
 type AmountDateTime struct {

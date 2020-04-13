@@ -1,5 +1,7 @@
 package telegram
 
+//go:generate mockgen -source=$GOFILE -destination=$PWD/telegram/mocks/${GOFILE} -package=mocks
+
 import (
 	"github.com/enrico5b1b4/tbwrap"
 	tb "gopkg.in/tucnak/telebot.v2"

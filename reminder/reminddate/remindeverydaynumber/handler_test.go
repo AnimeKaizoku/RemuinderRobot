@@ -33,11 +33,11 @@ func TestHandleRemindEveryDayNumber(t *testing.T) {
 			AddRepeatableReminderOnDateTime(
 				1,
 				text,
-				reminder.RepeatableDateTime{
-					Day:    "4",
-					Month:  "*",
-					Hour:   "9",
-					Minute: "0",
+				&reminder.RepeatableDateTime{
+					DayOfMonth: "4",
+					Month:      "*",
+					Hour:       "9",
+					Minute:     "0",
 				},
 				"buy milk").
 			Return(time.Now(), nil)
@@ -58,11 +58,11 @@ func TestHandleRemindEveryDayNumber(t *testing.T) {
 			AddRepeatableReminderOnDateTime(
 				1,
 				text,
-				reminder.RepeatableDateTime{
-					Day:    "4",
-					Month:  "*",
-					Hour:   "9",
-					Minute: "0",
+				&reminder.RepeatableDateTime{
+					DayOfMonth: "4",
+					Month:      "*",
+					Hour:       "9",
+					Minute:     "0",
 				},
 				"buy milk").
 			Return(time.Now(), errors.New("error"))

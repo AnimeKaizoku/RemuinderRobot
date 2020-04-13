@@ -24,7 +24,7 @@ func HandleRemindEveryDayNumber(service reminddate.Servicer) func(c tbwrap.Conte
 		}
 
 		repeatDateTime := mapMessageToReminderDateTime(message)
-		nextSchedule, err := service.AddRepeatableReminderOnDateTime(int(c.ChatID()), c.Text(), repeatDateTime, c.Param("message"))
+		nextSchedule, err := service.AddRepeatableReminderOnDateTime(int(c.ChatID()), c.Text(), &repeatDateTime, c.Param("message"))
 		if err != nil {
 			return err
 		}
@@ -37,9 +37,9 @@ func HandleRemindEveryDayNumber(service reminddate.Servicer) func(c tbwrap.Conte
 
 func mapMessageToReminderDateTime(m *Message) reminder.RepeatableDateTime {
 	return reminder.RepeatableDateTime{
-		Day:    strconv.Itoa(m.Day),
-		Month:  "*",
-		Hour:   "9",
-		Minute: "0",
+		DayOfMonth: strconv.Itoa(m.Day),
+		Month:      "*",
+		Hour:       "9",
+		Minute:     "0",
 	}
 }

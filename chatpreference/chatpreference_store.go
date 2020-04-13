@@ -1,5 +1,7 @@
 package chatpreference
 
+//go:generate mockgen -source=$GOFILE -destination=$PWD/chatpreference/mocks/${GOFILE} -package=mocks
+
 import (
 	"encoding/json"
 	"errors"
