@@ -19,7 +19,7 @@ import (
 func TestHandleRemindAt(t *testing.T) {
 	handlerPattern, err := regexp.Compile(remindat.HandlePattern)
 	require.NoError(t, err)
-	text := "/remind me at 20:45 buy milk"
+	text := "/remind me at 20.45 buy milk"
 	chat := &tb.Chat{ID: int64(1)}
 
 	t.Run("success", func(t *testing.T) {
