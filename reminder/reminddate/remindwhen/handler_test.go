@@ -21,54 +21,60 @@ func TestHandleRemindWhen(t *testing.T) {
 	require.NoError(t, err)
 	chat := &tb.Chat{ID: int64(1)}
 
-	t.Run("success without hours and minutes", func(t *testing.T) {
-		text := "/remind me tonight buy milk"
-		mockCtrl := gomock.NewController(t)
-		defer mockCtrl.Finish()
-		bot := fakeBot.NewBot()
-		c := tbwrap.NewContext(bot, &tb.Message{Text: text, Chat: chat}, nil, handlerPattern)
-		mockReminderService := mocks.NewMockServicer(mockCtrl)
-		mockReminderService.
-			EXPECT().
-			AddReminderOnWordDateTime(
-				1,
-				text,
-				reminder.WordDateTime{
+	t.Run("success", func(t *testing.T) {
+		type TestCase struct {
+			Text                 string
+			ExpectedWordDateTime reminder.WordDateTime
+		}
+
+		testCases := map[string]TestCase{
+			"without hours and minutes": {
+				Text: "/remind me tonight buy milk",
+				ExpectedWordDateTime: reminder.WordDateTime{
 					When:   reminder.Today,
 					Hour:   20,
 					Minute: 0,
 				},
-				"buy milk").
-			Return(time.Now(), nil)
-
-		err := remindwhen.HandleRemindWhen(mockReminderService)(c)
-		require.NoError(t, err)
-		require.Len(t, bot.OutboundSendMessages, 1)
-	})
-
-	t.Run("success with hours and minutes", func(t *testing.T) {
-		textHoursMins := "/remind me tonight at 23:34 buy milk"
-		mockCtrl := gomock.NewController(t)
-		defer mockCtrl.Finish()
-		bot := fakeBot.NewBot()
-		c := tbwrap.NewContext(bot, &tb.Message{Text: textHoursMins, Chat: chat}, nil, handlerPattern)
-		mockReminderService := mocks.NewMockServicer(mockCtrl)
-		mockReminderService.
-			EXPECT().
-			AddReminderOnWordDateTime(
-				1,
-				textHoursMins,
-				reminder.WordDateTime{
+			},
+			"with hours and minutes": {
+				Text: "/remind me tonight at 19:45 buy milk",
+				ExpectedWordDateTime: reminder.WordDateTime{
 					When:   reminder.Today,
-					Hour:   23,
-					Minute: 34,
+					Hour:   19,
+					Minute: 45,
 				},
-				"buy milk").
-			Return(time.Now(), nil)
+			},
+			"with hours and minutes dot separator": {
+				Text: "/remind me tonight at 19.45 buy milk",
+				ExpectedWordDateTime: reminder.WordDateTime{
+					When:   reminder.Today,
+					Hour:   19,
+					Minute: 45,
+				},
+			},
+		}
 
-		err := remindwhen.HandleRemindWhen(mockReminderService)(c)
-		require.NoError(t, err)
-		require.Len(t, bot.OutboundSendMessages, 1)
+		for name := range testCases {
+			t.Run(name, func(t *testing.T) {
+				mockCtrl := gomock.NewController(t)
+				defer mockCtrl.Finish()
+				bot := fakeBot.NewBot()
+				c := tbwrap.NewContext(bot, &tb.Message{Text: testCases[name].Text, Chat: chat}, nil, handlerPattern)
+				mockReminderService := mocks.NewMockServicer(mockCtrl)
+				mockReminderService.
+					EXPECT().
+					AddReminderOnWordDateTime(
+						1,
+						testCases[name].Text,
+						testCases[name].ExpectedWordDateTime,
+						"buy milk").
+					Return(time.Now(), nil)
+
+				err := remindwhen.HandleRemindWhen(mockReminderService)(c)
+				require.NoError(t, err)
+				require.Len(t, bot.OutboundSendMessages, 1)
+			})
+		}
 	})
 
 	t.Run("failure", func(t *testing.T) {
