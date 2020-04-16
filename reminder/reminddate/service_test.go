@@ -69,7 +69,7 @@ func TestService_AddReminderOnDateTime(t *testing.T) {
 				Command:     command,
 			},
 		}).Return(reminderID, nil)
-		mocks.Scheduler.EXPECT().GetNextScheduleTime(chatID, cronID).Return(stubNextScheduleTime, nil)
+		mocks.Scheduler.EXPECT().GetNextScheduleTime(cronID).Return(stubNextScheduleTime, nil)
 
 		service := reminddate.NewService(mocks.Scheduler, mocks.ReminderStore, mocks.ChatPreferenceStore, timeNow)
 		nextScheduleTime, err := service.AddReminderOnDateTime(chatID, command, reminder.DateTime{
@@ -126,7 +126,7 @@ func TestService_AddReminderOnWordDateTime(t *testing.T) {
 				Command:     command,
 			},
 		}).Return(reminderID, nil)
-		mocks.Scheduler.EXPECT().GetNextScheduleTime(chatID, cronID).Return(stubNextScheduleTime, nil)
+		mocks.Scheduler.EXPECT().GetNextScheduleTime(cronID).Return(stubNextScheduleTime, nil)
 
 		service := reminddate.NewService(mocks.Scheduler, mocks.ReminderStore, mocks.ChatPreferenceStore, timeNow)
 		nextScheduleTime, err := service.AddReminderOnWordDateTime(chatID, command, reminder.WordDateTime{
@@ -177,7 +177,7 @@ func TestService_AddRepeatableReminderOnDateTime(t *testing.T) {
 				Command:     command,
 			},
 		}).Return(reminderID, nil)
-		mocks.Scheduler.EXPECT().GetNextScheduleTime(chatID, cronID).Return(stubNextScheduleTime, nil)
+		mocks.Scheduler.EXPECT().GetNextScheduleTime(cronID).Return(stubNextScheduleTime, nil)
 
 		service := reminddate.NewService(mocks.Scheduler, mocks.ReminderStore, mocks.ChatPreferenceStore, timeNow)
 		nextScheduleTime, err := service.AddRepeatableReminderOnDateTime(chatID, command, &reminder.RepeatableDateTime{
@@ -233,7 +233,7 @@ func TestService_AddReminderIn(t *testing.T) {
 				Command:     command,
 			},
 		}).Return(reminderID, nil)
-		mocks.Scheduler.EXPECT().GetNextScheduleTime(chatID, cronID).Return(stubNextScheduleTime, nil)
+		mocks.Scheduler.EXPECT().GetNextScheduleTime(cronID).Return(stubNextScheduleTime, nil)
 
 		service := reminddate.NewService(mocks.Scheduler, mocks.ReminderStore, mocks.ChatPreferenceStore, timeNow)
 		nextScheduleTime, err := service.AddReminderIn(chatID, command, reminder.AmountDateTime{
@@ -298,7 +298,7 @@ func TestService_AddReminderEvery(t *testing.T) {
 				Command:     command,
 			},
 		}).Return(reminderID, nil)
-		mocks.Scheduler.EXPECT().GetNextScheduleTime(chatID, cronID).Return(stubNextScheduleTime, nil)
+		mocks.Scheduler.EXPECT().GetNextScheduleTime(cronID).Return(stubNextScheduleTime, nil)
 
 		service := reminddate.NewService(mocks.Scheduler, mocks.ReminderStore, mocks.ChatPreferenceStore, timeNow)
 		nextScheduleTime, err := service.AddReminderEvery(chatID, command, reminder.AmountDateTime{

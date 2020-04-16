@@ -246,7 +246,7 @@ func (s *Service) ScheduleAndAddReminder(rem *reminder.Reminder) (time.Time, err
 		return s.timeNow(), err
 	}
 
-	return s.reminderScheduler.GetNextScheduleTime(rem.ChatID, cronID)
+	return s.reminderScheduler.GetNextScheduleTime(cronID)
 }
 
 func (s *Service) getChatLocalDateTime(chatID, year, month, day, hour, minute int) (time.Time, error) {

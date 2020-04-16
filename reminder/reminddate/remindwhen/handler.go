@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/enrico5b1b4/tbwrap"
+	"github.com/enrico5b1b4/telegram-bot/date"
 	"github.com/enrico5b1b4/telegram-bot/reminder"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate"
 )
@@ -12,12 +13,13 @@ type Message struct {
 	Who     string `regexpGroup:"who"`
 	When    string `regexpGroup:"when"`
 	Hour    *int   `regexpGroup:"hour"`
-	Minute  *int   `regexpGroup:"minute"`
+	Minute  int    `regexpGroup:"minute"`
+	AMPM    string `regexpGroup:"ampm"`
 	Message string `regexpGroup:"message"`
 }
 
 // nolint:lll
-const HandlePattern = `\/remind (?P<who>me|chat) (?P<when>this afternoon|this evening|tonight|tomorrow morning|tomorrow afternoon|tomorrow evening|tomorrow) ?(at (?P<hour>\d{1,2})(:|.)(?P<minute>\d{1,2}))? (?P<message>.*)`
+const HandlePattern = `\/remind (?P<who>me|chat) (?P<when>this afternoon|this evening|tonight|tomorrow morning|tomorrow afternoon|tomorrow evening|tomorrow) ?(at (?P<hour>\d{1,2})?((:|.)(?P<minute>\d{1,2}))??(?P<ampm>am|pm)?)? (?P<message>.*)`
 
 func HandleRemindWhen(service reminddate.Servicer) func(c tbwrap.Context) error {
 	return func(c tbwrap.Context) error {
@@ -80,11 +82,10 @@ func mapMessageToReminderWordDateTime(m *Message) (reminder.WordDateTime, error)
 	}
 
 	if m.Hour != nil {
-		wdt.Hour = *m.Hour
+		hour, minute := date.ConvertTo24H(*m.Hour, m.Minute, m.AMPM)
 
-		if m.Minute != nil {
-			wdt.Minute = *m.Minute
-		}
+		wdt.Hour = hour
+		wdt.Minute = minute
 	}
 
 	return wdt, nil

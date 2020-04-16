@@ -15,7 +15,7 @@ import (
 
 type Scheduler interface {
 	AddReminder(r *reminder.Reminder) (int, error)
-	GetNextScheduleTime(chatID, reminderID int) (time.Time, error)
+	GetNextScheduleTime(cronID int) (time.Time, error)
 }
 
 type ReminderScheduler struct {
@@ -57,13 +57,8 @@ func (s *ReminderScheduler) AddReminder(rem *reminder.Reminder) (int, error) {
 	return reminderCronID, nil
 }
 
-func (s *ReminderScheduler) GetNextScheduleTime(chatID, reminderID int) (time.Time, error) {
-	r, err := s.reminderStore.GetReminder(chatID, reminderID)
-	if err != nil {
-		return time.Now(), err
-	}
-
-	cronEntry := s.scheduler.GetEntryByID(r.CronID)
+func (s *ReminderScheduler) GetNextScheduleTime(cronID int) (time.Time, error) {
+	cronEntry := s.scheduler.GetEntryByID(cronID)
 
 	return cronEntry.Next, nil
 }

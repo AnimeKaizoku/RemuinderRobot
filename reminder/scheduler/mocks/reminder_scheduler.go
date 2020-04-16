@@ -51,16 +51,16 @@ func (mr *MockSchedulerMockRecorder) AddReminder(r interface{}) *gomock.Call {
 }
 
 // GetNextScheduleTime mocks base method
-func (m *MockScheduler) GetNextScheduleTime(chatID, reminderID int) (time.Time, error) {
+func (m *MockScheduler) GetNextScheduleTime(cronID int) (time.Time, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetNextScheduleTime", chatID, reminderID)
+	ret := m.ctrl.Call(m, "GetNextScheduleTime", cronID)
 	ret0, _ := ret[0].(time.Time)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetNextScheduleTime indicates an expected call of GetNextScheduleTime
-func (mr *MockSchedulerMockRecorder) GetNextScheduleTime(chatID, reminderID interface{}) *gomock.Call {
+func (mr *MockSchedulerMockRecorder) GetNextScheduleTime(cronID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNextScheduleTime", reflect.TypeOf((*MockScheduler)(nil).GetNextScheduleTime), chatID, reminderID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNextScheduleTime", reflect.TypeOf((*MockScheduler)(nil).GetNextScheduleTime), cronID)
 }

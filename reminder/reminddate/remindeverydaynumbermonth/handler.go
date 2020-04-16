@@ -14,12 +14,13 @@ type Message struct {
 	Day     int    `regexpGroup:"day"`
 	Month   string `regexpGroup:"month"`
 	Hour    *int   `regexpGroup:"hour"`
-	Minute  *int   `regexpGroup:"minute"`
+	Minute  int    `regexpGroup:"minute"`
+	AMPM    string `regexpGroup:"ampm"`
 	Message string `regexpGroup:"message"`
 }
 
 // nolint:lll
-const HandlePattern = `\/remind (?P<who>me|chat) every (?P<day>\d{1,2})(?:(st|nd|rd|th))? of (?P<month>january|february|march|april|may|june|july|august|september|october|november|december) ?(at (?P<hour>\d{1,2})(:|.)(?P<minute>\d{1,2}))? (?P<message>.*)`
+const HandlePattern = `\/remind (?P<who>me|chat) every (?P<day>\d{1,2})(?:(st|nd|rd|th))? of (?P<month>january|february|march|april|may|june|july|august|september|october|november|december) ?(at (?P<hour>\d{1,2})?((:|.)(?P<minute>\d{1,2}))??(?P<ampm>am|pm)?)? (?P<message>.*)`
 
 func HandleRemindEveryDayNumberMonth(service reminddate.Servicer) func(c tbwrap.Context) error {
 	return func(c tbwrap.Context) error {
@@ -49,11 +50,10 @@ func mapMessageToReminderDateTime(m *Message) reminder.RepeatableDateTime {
 	}
 
 	if m.Hour != nil {
-		rdt.Hour = strconv.Itoa(*m.Hour)
+		hour, minute := date.ConvertTo24H(*m.Hour, m.Minute, m.AMPM)
 
-		if m.Minute != nil {
-			rdt.Minute = strconv.Itoa(*m.Minute)
-		}
+		rdt.Hour = strconv.Itoa(hour)
+		rdt.Minute = strconv.Itoa(minute)
 	}
 
 	return rdt

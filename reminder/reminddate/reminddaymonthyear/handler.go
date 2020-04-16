@@ -13,12 +13,13 @@ type Message struct {
 	Month   string `regexpGroup:"month"`
 	Year    int    `regexpGroup:"year"`
 	Hour    *int   `regexpGroup:"hour"`
-	Minute  *int   `regexpGroup:"minute"`
+	Minute  int    `regexpGroup:"minute"`
+	AMPM    string `regexpGroup:"ampm"`
 	Message string `regexpGroup:"message"`
 }
 
 // nolint:lll
-const HandlePattern = `\/remind (?P<who>me|chat) on the (?P<day>\d{1,2})(?:(st|nd|rd|th))? of (?P<month>january|february|march|april|may|june|july|august|september|october|november|december) (?P<year>\d{4}) ?(at (?P<hour>\d{1,2})(:|.)(?P<minute>\d{1,2}))? (?P<message>.*)`
+const HandlePattern = `\/remind (?P<who>me|chat) on the (?P<day>\d{1,2})(?:(st|nd|rd|th))? of (?P<month>january|february|march|april|may|june|july|august|september|october|november|december) (?P<year>\d{4}) ?(at (?P<hour>\d{1,2})?((:|.)(?P<minute>\d{1,2}))??(?P<ampm>am|pm)?)? (?P<message>.*)`
 
 func HandleRemindDayMonthYear(service reminddate.Servicer) func(c tbwrap.Context) error {
 	return func(c tbwrap.Context) error {
@@ -48,11 +49,10 @@ func mapMessageToReminderDateTime(m *Message) reminder.DateTime {
 	}
 
 	if m.Hour != nil {
-		dt.Hour = *m.Hour
+		hour, minute := date.ConvertTo24H(*m.Hour, m.Minute, m.AMPM)
 
-		if m.Minute != nil {
-			dt.Minute = *m.Minute
-		}
+		dt.Hour = hour
+		dt.Minute = minute
 	}
 
 	return dt

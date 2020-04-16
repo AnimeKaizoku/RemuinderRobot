@@ -2,6 +2,7 @@ package remindat
 
 import (
 	"github.com/enrico5b1b4/tbwrap"
+	"github.com/enrico5b1b4/telegram-bot/date"
 	"github.com/enrico5b1b4/telegram-bot/reminder"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate"
 )
@@ -10,11 +11,12 @@ type Message struct {
 	Who     string `regexpGroup:"who"`
 	Hour    int    `regexpGroup:"hour"`
 	Minute  int    `regexpGroup:"minute"`
+	AMPM    string `regexpGroup:"ampm"`
 	Message string `regexpGroup:"message"`
 }
 
 // nolint:lll
-const HandlePattern = `\/remind (?P<who>me|chat) at (?P<hour>\d{1,2})(:|.)(?P<minute>\d{1,2}) (?P<message>.*)`
+const HandlePattern = `\/remind (?P<who>me|chat) at (?P<hour>\d{1,2})?((:|.)(?P<minute>\d{1,2}))??(?P<ampm>am|pm)? (?P<message>.*)`
 
 func HandleRemindAt(service reminddate.Servicer) func(c tbwrap.Context) error {
 	return func(c tbwrap.Context) error {
@@ -35,9 +37,11 @@ func HandleRemindAt(service reminddate.Servicer) func(c tbwrap.Context) error {
 }
 
 func mapMessageToReminderWordDateTime(m *Message) reminder.WordDateTime {
+	hour, minute := date.ConvertTo24H(m.Hour, m.Minute, m.AMPM)
+
 	return reminder.WordDateTime{
 		When:   reminder.Today,
-		Hour:   m.Hour,
-		Minute: m.Minute,
+		Hour:   hour,
+		Minute: minute,
 	}
 }
