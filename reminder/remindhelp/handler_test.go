@@ -21,7 +21,7 @@ func TestHandleRemindHelp(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		mockCtrl := gomock.NewController(t)
 		defer mockCtrl.Finish()
-		bot := fakeBot.NewBot()
+		bot := fakeBot.NewTBWrapBot()
 		c := tbwrap.NewContext(bot, &tb.Message{Text: text, Chat: chat}, nil, handlerPattern)
 
 		err := remindhelp.HandleRemindHelp()(c)

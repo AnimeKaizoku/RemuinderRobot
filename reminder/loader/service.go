@@ -11,7 +11,7 @@ import (
 )
 
 type Service struct {
-	b                   telegram.Bot
+	b                   telegram.TBWrapBot
 	scheduler           cron.Scheduler
 	reminderStore       reminder.Storer
 	reminderJobService  remindcronfunc.Servicer
@@ -19,7 +19,7 @@ type Service struct {
 }
 
 func NewService(
-	b telegram.Bot,
+	b telegram.TBWrapBot,
 	scheduler cron.Scheduler,
 	reminderStore reminder.Storer,
 	chatPreferenceStore chatpreference.Storer,

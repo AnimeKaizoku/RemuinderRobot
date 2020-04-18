@@ -22,12 +22,12 @@ type ReminderScheduler struct {
 	reminderStore           reminder.Storer
 	reminderCronFuncService remindcronfunc.Servicer
 	scheduler               cron.Scheduler
-	bot                     telegram.Bot
+	bot                     telegram.TBWrapBot
 	chatPreferenceStore     chatpreference.Storer
 }
 
 func NewReminderScheduler(
-	bot telegram.Bot,
+	bot telegram.TBWrapBot,
 	reminderCronFuncService remindcronfunc.Servicer,
 	reminderStore reminder.Storer,
 	scheduler cron.Scheduler,

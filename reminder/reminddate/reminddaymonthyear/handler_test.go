@@ -103,7 +103,7 @@ func TestHandleRemindDayMonthYear_Success(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			mockCtrl := gomock.NewController(t)
 			defer mockCtrl.Finish()
-			bot := fakeBot.NewBot()
+			bot := fakeBot.NewTBWrapBot()
 			c := tbwrap.NewContext(bot, &tb.Message{Text: testCases[name].Text, Chat: chat}, nil, handlerPattern)
 			mockReminderService := mocks.NewMockServicer(mockCtrl)
 			mockReminderService.
@@ -130,7 +130,7 @@ func TestHandleRemindDayMonthYear_Failure(t *testing.T) {
 	text := "/remind me on the 4th of march 2020 buy milk"
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
-	bot := fakeBot.NewBot()
+	bot := fakeBot.NewTBWrapBot()
 	c := tbwrap.NewContext(bot, &tb.Message{Text: text, Chat: chat}, nil, handlerPattern)
 	mockReminderService := mocks.NewMockServicer(mockCtrl)
 	mockReminderService.

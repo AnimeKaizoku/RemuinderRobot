@@ -9,7 +9,7 @@ import (
 	tb "gopkg.in/tucnak/telebot.v2"
 )
 
-func New(s Servicer, b telegram.Bot, r *reminder.Reminder) func() {
+func New(s Servicer, b telegram.TBWrapBot, r *reminder.Reminder) func() {
 	return func() {
 		messageWithIcon := fmt.Sprintf("🗓 %s", r.Data.Message)
 		_, err := b.Send(&tb.Chat{ID: int64(r.Data.RecipientID)}, messageWithIcon)

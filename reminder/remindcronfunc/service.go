@@ -19,14 +19,14 @@ type Servicer interface {
 }
 
 type Service struct {
-	b                   telegram.Bot
+	b                   telegram.TBWrapBot
 	scheduler           cron.Scheduler
 	reminderStore       reminder.Storer
 	chatPreferenceStore chatpreference.Storer
 }
 
 func NewService(
-	b telegram.Bot,
+	b telegram.TBWrapBot,
 	scheduler cron.Scheduler,
 	reminderStore reminder.Storer,
 	chatPreferenceStore chatpreference.Storer,

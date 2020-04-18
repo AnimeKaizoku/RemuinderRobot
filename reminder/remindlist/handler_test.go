@@ -23,7 +23,7 @@ func TestHandleRemindList(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		mockCtrl := gomock.NewController(t)
 		defer mockCtrl.Finish()
-		bot := fakeBot.NewBot()
+		bot := fakeBot.NewTBWrapBot()
 		c := tbwrap.NewContext(bot, &tb.Message{Text: text, Chat: chat}, nil, handlerPattern)
 		mockReminderService := mocks.NewMockServicer(mockCtrl)
 		mockReminderService.
@@ -39,7 +39,7 @@ func TestHandleRemindList(t *testing.T) {
 	t.Run("failure", func(t *testing.T) {
 		mockCtrl := gomock.NewController(t)
 		defer mockCtrl.Finish()
-		bot := fakeBot.NewBot()
+		bot := fakeBot.NewTBWrapBot()
 		c := tbwrap.NewContext(bot, &tb.Message{Text: text, Chat: chat}, nil, handlerPattern)
 		mockReminderService := mocks.NewMockServicer(mockCtrl)
 		mockReminderService.
