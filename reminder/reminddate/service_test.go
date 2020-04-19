@@ -28,7 +28,7 @@ const (
 )
 
 func TestService_AddReminderOnDateTime(t *testing.T) {
-	t.Run("success with day of month", func(t *testing.T) {
+	t.Run("success with day of month and month", func(t *testing.T) {
 		chatID := 1
 		cronID := 2
 		reminderID := 3
@@ -71,6 +71,55 @@ func TestService_AddReminderOnDateTime(t *testing.T) {
 		nextScheduleTime, err := service.AddReminderOnDateTime(chatID, command, reminder.DateTime{
 			DayOfMonth: 1,
 			Month:      date.ToNumericMonth(time.April.String()),
+			Hour:       13,
+			Minute:     52,
+		}, message)
+		assert.NoError(t, err)
+		assert.Equal(t, stubNextScheduleTime, nextScheduleTime)
+	})
+	t.Run("success with day of month without month", func(t *testing.T) {
+		chatID := 1
+		cronID := 2
+		reminderID := 3
+		stubNextScheduleTime := timeNow()
+		mockCtrl := gomock.NewController(t)
+		defer mockCtrl.Finish()
+		mocks := createMocks(mockCtrl)
+		mocks.Scheduler.EXPECT().AddReminder(&reminder.Reminder{
+			Job: cron.Job{
+				ChatID:      chatID,
+				Schedule:    "52 13 1 * *",
+				Type:        cron.Reminder,
+				Status:      cron.Active,
+				RunOnlyOnce: true,
+			},
+			Data: reminder.Data{
+				RecipientID: chatID,
+				Message:     message,
+				Command:     command,
+			},
+		}).Return(cronID, nil)
+		mocks.ReminderStore.EXPECT().CreateReminder(&reminder.Reminder{
+			Job: cron.Job{
+				CronID:      cronID,
+				ChatID:      chatID,
+				Schedule:    "52 13 1 * *",
+				Type:        cron.Reminder,
+				Status:      cron.Active,
+				RunOnlyOnce: true,
+			},
+			Data: reminder.Data{
+				RecipientID: chatID,
+				Message:     message,
+				Command:     command,
+			},
+		}).Return(reminderID, nil)
+		mocks.Scheduler.EXPECT().GetNextScheduleTime(cronID).Return(stubNextScheduleTime, nil)
+
+		service := reminddate.NewService(mocks.Scheduler, mocks.ReminderStore, mocks.ChatPreferenceStore, timeNow)
+		nextScheduleTime, err := service.AddReminderOnDateTime(chatID, command, reminder.DateTime{
+			DayOfMonth: 1,
+			Month:      0,
 			Hour:       13,
 			Minute:     52,
 		}, message)

@@ -20,7 +20,7 @@ import (
 func TestHandleRemindEveryPattern1(t *testing.T) {
 	handlerPattern, err := regexp.Compile(remindevery.HandlePattern1)
 	require.NoError(t, err)
-	text := "/remind me every 2 minutes buy milk"
+	text := "/remind me every 2 minutes update weekly report"
 	chat := &tb.Chat{ID: int64(1)}
 
 	t.Run("success", func(t *testing.T) {
@@ -39,7 +39,7 @@ func TestHandleRemindEveryPattern1(t *testing.T) {
 					Hours:   0,
 					Minutes: 2,
 				},
-				"buy milk").
+				"update weekly report").
 			Return(time.Now(), nil)
 
 		err := remindevery.HandleRemindEvery(mockReminderService)(c)
@@ -63,7 +63,7 @@ func TestHandleRemindEveryPattern1(t *testing.T) {
 					Hours:   0,
 					Minutes: 2,
 				},
-				"buy milk").
+				"update weekly report").
 			Return(time.Now(), errors.New("error"))
 
 		err := remindevery.HandleRemindEvery(mockReminderService)(c)
@@ -76,7 +76,7 @@ func TestHandleRemindEveryPattern1(t *testing.T) {
 func TestHandleRemindEveryPattern2(t *testing.T) {
 	handlerPattern, err := regexp.Compile(remindevery.HandlePattern2)
 	require.NoError(t, err)
-	text := "/remind me every 2 minutes, 3 days buy milk"
+	text := "/remind me every 2 minutes, 3 days update weekly report"
 	chat := &tb.Chat{ID: int64(1)}
 
 	t.Run("success", func(t *testing.T) {
@@ -95,7 +95,7 @@ func TestHandleRemindEveryPattern2(t *testing.T) {
 					Hours:   0,
 					Minutes: 2,
 				},
-				"buy milk").
+				"update weekly report").
 			Return(time.Now(), nil)
 
 		err := remindevery.HandleRemindEvery(mockReminderService)(c)
@@ -119,7 +119,7 @@ func TestHandleRemindEveryPattern2(t *testing.T) {
 					Hours:   0,
 					Minutes: 2,
 				},
-				"buy milk").
+				"update weekly report").
 			Return(time.Now(), errors.New("error"))
 
 		err := remindevery.HandleRemindEvery(mockReminderService)(c)
@@ -132,7 +132,7 @@ func TestHandleRemindEveryPattern2(t *testing.T) {
 func TestHandleRemindEveryPattern3(t *testing.T) {
 	handlerPattern, err := regexp.Compile(remindevery.HandlePattern3)
 	require.NoError(t, err)
-	text := "/remind me every 2 minutes, 1 hour, 3 days buy milk"
+	text := "/remind me every 2 minutes, 1 hour, 3 days update weekly report"
 	chat := &tb.Chat{ID: int64(1)}
 
 	t.Run("success", func(t *testing.T) {
@@ -151,7 +151,7 @@ func TestHandleRemindEveryPattern3(t *testing.T) {
 					Hours:   1,
 					Minutes: 2,
 				},
-				"buy milk").
+				"update weekly report").
 			Return(time.Now(), nil)
 
 		err := remindevery.HandleRemindEvery(mockReminderService)(c)
@@ -175,7 +175,7 @@ func TestHandleRemindEveryPattern3(t *testing.T) {
 					Hours:   1,
 					Minutes: 2,
 				},
-				"buy milk").
+				"update weekly report").
 			Return(time.Now(), errors.New("error"))
 
 		err := remindevery.HandleRemindEvery(mockReminderService)(c)

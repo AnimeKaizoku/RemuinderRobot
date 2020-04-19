@@ -16,81 +16,16 @@ import (
 	tb "gopkg.in/tucnak/telebot.v2"
 )
 
+type TestCase struct {
+	Text             string
+	ExpectedDateTime reminder.DateTime
+}
+
 func TestHandleRemindDayMonth_Success(t *testing.T) {
 	handlerPattern, err := regexp.Compile(reminddaymonth.HandlePattern)
 	require.NoError(t, err)
 	chat := &tb.Chat{ID: int64(1)}
-
-	type TestCase struct {
-		Text             string
-		ExpectedDateTime reminder.DateTime
-	}
-
-	testCases := map[string]TestCase{
-		"without hours and minutes": {
-			Text: "/remind me on the 4th of march buy milk",
-			ExpectedDateTime: reminder.DateTime{
-				DayOfMonth: 4,
-				Month:      3,
-				Hour:       9,
-				Minute:     0,
-			},
-		},
-		"with hours and minutes": {
-			Text: "/remind me on the 4th of march at 23:34 buy milk",
-			ExpectedDateTime: reminder.DateTime{
-				DayOfMonth: 4,
-				Month:      3,
-				Hour:       23,
-				Minute:     34,
-			},
-		},
-		"with hours and minutes dot separator": {
-			Text: "/remind me on the 4th of march at 23.34 buy milk",
-			ExpectedDateTime: reminder.DateTime{
-				DayOfMonth: 4,
-				Month:      3,
-				Hour:       23,
-				Minute:     34,
-			},
-		},
-		"with only hour": {
-			Text: "/remind me on the 4th of march at 23 buy milk",
-			ExpectedDateTime: reminder.DateTime{
-				DayOfMonth: 4,
-				Month:      3,
-				Hour:       23,
-				Minute:     0,
-			},
-		},
-		"with only hour pm": {
-			Text: "/remind me on the 4th of march at 8pm buy milk",
-			ExpectedDateTime: reminder.DateTime{
-				DayOfMonth: 4,
-				Month:      3,
-				Hour:       20,
-				Minute:     0,
-			},
-		},
-		"with hour minute pm": {
-			Text: "/remind me on the 4th of march at 8:30pm buy milk",
-			ExpectedDateTime: reminder.DateTime{
-				DayOfMonth: 4,
-				Month:      3,
-				Hour:       20,
-				Minute:     30,
-			},
-		},
-		"with hour minute pm dot separator": {
-			Text: "/remind me on the 4th of march at 8.30pm buy milk",
-			ExpectedDateTime: reminder.DateTime{
-				DayOfMonth: 4,
-				Month:      3,
-				Hour:       20,
-				Minute:     30,
-			},
-		},
-	}
+	testCases := newTestHandleRemindDayMonthTestCases()
 
 	for name := range testCases {
 		t.Run(name, func(t *testing.T) {
@@ -105,7 +40,7 @@ func TestHandleRemindDayMonth_Success(t *testing.T) {
 					1,
 					testCases[name].Text,
 					testCases[name].ExpectedDateTime,
-					"buy milk").
+					"update weekly report").
 				Return(time.Now(), nil)
 
 			err := reminddaymonth.HandleRemindDayMonth(mockReminderService)(c)
@@ -115,12 +50,143 @@ func TestHandleRemindDayMonth_Success(t *testing.T) {
 	}
 }
 
+func newTestHandleRemindDayMonthTestCases() map[string]TestCase {
+	return map[string]TestCase{
+		"without hours and minutes": {
+			Text: "/remind me on the 4th of march update weekly report",
+			ExpectedDateTime: reminder.DateTime{
+				DayOfMonth: 4,
+				Month:      3,
+				Hour:       9,
+				Minute:     0,
+			},
+		},
+		"with hours and minutes": {
+			Text: "/remind me on the 4th of march at 23:34 update weekly report",
+			ExpectedDateTime: reminder.DateTime{
+				DayOfMonth: 4,
+				Month:      3,
+				Hour:       23,
+				Minute:     34,
+			},
+		},
+		"with hours and minutes dot separator": {
+			Text: "/remind me on the 4th of march at 23.34 update weekly report",
+			ExpectedDateTime: reminder.DateTime{
+				DayOfMonth: 4,
+				Month:      3,
+				Hour:       23,
+				Minute:     34,
+			},
+		},
+		"with only hour": {
+			Text: "/remind me on the 4th of march at 23 update weekly report",
+			ExpectedDateTime: reminder.DateTime{
+				DayOfMonth: 4,
+				Month:      3,
+				Hour:       23,
+				Minute:     0,
+			},
+		},
+		"with only hour pm": {
+			Text: "/remind me on the 4th of march at 8pm update weekly report",
+			ExpectedDateTime: reminder.DateTime{
+				DayOfMonth: 4,
+				Month:      3,
+				Hour:       20,
+				Minute:     0,
+			},
+		},
+		"with hour minute pm": {
+			Text: "/remind me on the 4th of march at 8:30pm update weekly report",
+			ExpectedDateTime: reminder.DateTime{
+				DayOfMonth: 4,
+				Month:      3,
+				Hour:       20,
+				Minute:     30,
+			},
+		},
+		"with hour minute pm dot separator": {
+			Text: "/remind me on the 4th of march at 8.30pm update weekly report",
+			ExpectedDateTime: reminder.DateTime{
+				DayOfMonth: 4,
+				Month:      3,
+				Hour:       20,
+				Minute:     30,
+			},
+		},
+		"with only day and without hours and minutes": {
+			Text: "/remind me on the 4th update weekly report",
+			ExpectedDateTime: reminder.DateTime{
+				DayOfMonth: 4,
+				Month:      0,
+				Hour:       9,
+				Minute:     0,
+			},
+		},
+		"with only day and hours and minutes": {
+			Text: "/remind me on the 4th at 23:34 update weekly report",
+			ExpectedDateTime: reminder.DateTime{
+				DayOfMonth: 4,
+				Month:      0,
+				Hour:       23,
+				Minute:     34,
+			},
+		},
+		"with only day and hours and minutes dot separator": {
+			Text: "/remind me on the 4th at 23.34 update weekly report",
+			ExpectedDateTime: reminder.DateTime{
+				DayOfMonth: 4,
+				Month:      0,
+				Hour:       23,
+				Minute:     34,
+			},
+		},
+		"with only day and only hour": {
+			Text: "/remind me on the 4th at 23 update weekly report",
+			ExpectedDateTime: reminder.DateTime{
+				DayOfMonth: 4,
+				Month:      0,
+				Hour:       23,
+				Minute:     0,
+			},
+		},
+		"with only day and only hour pm": {
+			Text: "/remind me on the 4th at 8pm update weekly report",
+			ExpectedDateTime: reminder.DateTime{
+				DayOfMonth: 4,
+				Month:      0,
+				Hour:       20,
+				Minute:     0,
+			},
+		},
+		"with only day and hour minute pm": {
+			Text: "/remind me on the 4th at 8:30pm update weekly report",
+			ExpectedDateTime: reminder.DateTime{
+				DayOfMonth: 4,
+				Month:      0,
+				Hour:       20,
+				Minute:     30,
+			},
+		},
+		"with only day and hour minute pm dot separator": {
+			Text: "/remind me on the 4th at 8.30pm update weekly report",
+			ExpectedDateTime: reminder.DateTime{
+				DayOfMonth: 4,
+				Month:      0,
+				Hour:       20,
+				Minute:     30,
+			},
+		},
+	}
+}
+
 func TestHandleRemindDayMonth_Failure(t *testing.T) {
 	handlerPattern, err := regexp.Compile(reminddaymonth.HandlePattern)
 	require.NoError(t, err)
 
 	chat := &tb.Chat{ID: int64(1)}
-	text := "/remind me on the 4th of march buy milk"
+	text := "/remind me on the 4th of march update weekly report"
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 	bot := fakeBot.NewTBWrapBot()
@@ -137,7 +203,7 @@ func TestHandleRemindDayMonth_Failure(t *testing.T) {
 				Hour:       9,
 				Minute:     0,
 			},
-			"buy milk").
+			"update weekly report").
 		Return(time.Now(), errors.New("error"))
 
 	err = reminddaymonth.HandleRemindDayMonth(mockReminderService)(c)

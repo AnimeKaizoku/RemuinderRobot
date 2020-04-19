@@ -28,7 +28,7 @@ func TestHandleRemindDayOfWeek_Success(t *testing.T) {
 
 	testCases := map[string]TestCase{
 		"without hours and minutes": {
-			Text: "/remind me on tuesday buy milk",
+			Text: "/remind me on tuesday update weekly report",
 			ExpectedDateTime: reminder.DateTime{
 				DayOfWeek: "2",
 				Hour:      9,
@@ -36,7 +36,7 @@ func TestHandleRemindDayOfWeek_Success(t *testing.T) {
 			},
 		},
 		"with hours and minutes": {
-			Text: "/remind me on tuesday at 23:34 buy milk",
+			Text: "/remind me on tuesday at 23:34 update weekly report",
 			ExpectedDateTime: reminder.DateTime{
 				DayOfWeek: "2",
 				Hour:      23,
@@ -44,7 +44,7 @@ func TestHandleRemindDayOfWeek_Success(t *testing.T) {
 			},
 		},
 		"with hours and minutes dot separator": {
-			Text: "/remind me on tuesday at 23.34 buy milk",
+			Text: "/remind me on tuesday at 23.34 update weekly report",
 			ExpectedDateTime: reminder.DateTime{
 				DayOfWeek: "2",
 				Hour:      23,
@@ -52,7 +52,7 @@ func TestHandleRemindDayOfWeek_Success(t *testing.T) {
 			},
 		},
 		"with only hour": {
-			Text: "/remind me on tuesday at 23 buy milk",
+			Text: "/remind me on tuesday at 23 update weekly report",
 			ExpectedDateTime: reminder.DateTime{
 				DayOfWeek: "2",
 				Hour:      23,
@@ -60,7 +60,7 @@ func TestHandleRemindDayOfWeek_Success(t *testing.T) {
 			},
 		},
 		"with only hour pm": {
-			Text: "/remind me on tuesday at 8pm buy milk",
+			Text: "/remind me on tuesday at 8pm update weekly report",
 			ExpectedDateTime: reminder.DateTime{
 				DayOfWeek: "2",
 				Hour:      20,
@@ -68,7 +68,7 @@ func TestHandleRemindDayOfWeek_Success(t *testing.T) {
 			},
 		},
 		"with hour minute pm": {
-			Text: "/remind me on tuesday at 8:30pm buy milk",
+			Text: "/remind me on tuesday at 8:30pm update weekly report",
 			ExpectedDateTime: reminder.DateTime{
 				DayOfWeek: "2",
 				Hour:      20,
@@ -76,7 +76,7 @@ func TestHandleRemindDayOfWeek_Success(t *testing.T) {
 			},
 		},
 		"with hour minute pm dot separator": {
-			Text: "/remind me on tuesday at 8.30pm buy milk",
+			Text: "/remind me on tuesday at 8.30pm update weekly report",
 			ExpectedDateTime: reminder.DateTime{
 				DayOfWeek: "2",
 				Hour:      20,
@@ -98,7 +98,7 @@ func TestHandleRemindDayOfWeek_Success(t *testing.T) {
 					1,
 					testCases[name].Text,
 					testCases[name].ExpectedDateTime,
-					"buy milk").
+					"update weekly report").
 				Return(time.Now(), nil)
 
 			err := reminddayofweek.HandleRemindDayOfWeek(mockReminderService)(c)
@@ -113,7 +113,7 @@ func TestHandleRemindDayOfWeek_Failure(t *testing.T) {
 	require.NoError(t, err)
 
 	chat := &tb.Chat{ID: int64(1)}
-	text := "/remind me on tuesday buy milk"
+	text := "/remind me on tuesday update weekly report"
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 	bot := fakeBot.NewTBWrapBot()
@@ -129,7 +129,7 @@ func TestHandleRemindDayOfWeek_Failure(t *testing.T) {
 				Hour:      9,
 				Minute:    0,
 			},
-			"buy milk").
+			"update weekly report").
 		Return(time.Now(), errors.New("error"))
 
 	err = reminddayofweek.HandleRemindDayOfWeek(mockReminderService)(c)

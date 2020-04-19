@@ -28,7 +28,7 @@ func TestHandleRemindEveryDayOfWeek_Success(t *testing.T) {
 
 	testCases := map[string]TestCase{
 		"without hours and minutes": {
-			Text: "/remind me every monday buy milk",
+			Text: "/remind me every monday update weekly report",
 			ExpectedRepeatableDateTime: &reminder.RepeatableDateTime{
 				DayOfWeek: "1",
 				Month:     "*",
@@ -37,7 +37,7 @@ func TestHandleRemindEveryDayOfWeek_Success(t *testing.T) {
 			},
 		},
 		"with hours and minutes": {
-			Text: "/remind me every monday at 23:34 buy milk",
+			Text: "/remind me every monday at 23:34 update weekly report",
 			ExpectedRepeatableDateTime: &reminder.RepeatableDateTime{
 				DayOfWeek: "1",
 				Month:     "*",
@@ -46,7 +46,7 @@ func TestHandleRemindEveryDayOfWeek_Success(t *testing.T) {
 			},
 		},
 		"with hours and minutes dot separator": {
-			Text: "/remind me every monday at 23.34 buy milk",
+			Text: "/remind me every monday at 23.34 update weekly report",
 			ExpectedRepeatableDateTime: &reminder.RepeatableDateTime{
 				DayOfWeek: "1",
 				Month:     "*",
@@ -55,7 +55,7 @@ func TestHandleRemindEveryDayOfWeek_Success(t *testing.T) {
 			},
 		},
 		"with only hour": {
-			Text: "/remind me every monday at 23 buy milk",
+			Text: "/remind me every monday at 23 update weekly report",
 			ExpectedRepeatableDateTime: &reminder.RepeatableDateTime{
 				DayOfWeek: "1",
 				Month:     "*",
@@ -64,7 +64,7 @@ func TestHandleRemindEveryDayOfWeek_Success(t *testing.T) {
 			},
 		},
 		"with only hour pm": {
-			Text: "/remind me every monday at 8pm buy milk",
+			Text: "/remind me every monday at 8pm update weekly report",
 			ExpectedRepeatableDateTime: &reminder.RepeatableDateTime{
 				DayOfWeek: "1",
 				Month:     "*",
@@ -73,7 +73,7 @@ func TestHandleRemindEveryDayOfWeek_Success(t *testing.T) {
 			},
 		},
 		"with hour minute": {
-			Text: "/remind me every monday at 8:30pm buy milk",
+			Text: "/remind me every monday at 8:30pm update weekly report",
 			ExpectedRepeatableDateTime: &reminder.RepeatableDateTime{
 				DayOfWeek: "1",
 				Month:     "*",
@@ -82,7 +82,7 @@ func TestHandleRemindEveryDayOfWeek_Success(t *testing.T) {
 			},
 		},
 		"with hour minute dot separator": {
-			Text: "/remind me every monday at 8.30pm buy milk",
+			Text: "/remind me every monday at 8.30pm update weekly report",
 			ExpectedRepeatableDateTime: &reminder.RepeatableDateTime{
 				DayOfWeek: "1",
 				Month:     "*",
@@ -105,7 +105,7 @@ func TestHandleRemindEveryDayOfWeek_Success(t *testing.T) {
 					1,
 					testCases[name].Text,
 					testCases[name].ExpectedRepeatableDateTime,
-					"buy milk").
+					"update weekly report").
 				Return(time.Now(), nil)
 
 			err := remindeverydayofweek.HandleRemindEveryDayOfWeek(mockReminderService)(c)
@@ -120,7 +120,7 @@ func TestHandleRemindEveryDayOfWeek_Failure(t *testing.T) {
 	require.NoError(t, err)
 
 	chat := &tb.Chat{ID: int64(1)}
-	text := "/remind me every monday buy milk"
+	text := "/remind me every monday update weekly report"
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 	bot := fakeBot.NewTBWrapBot()
@@ -137,7 +137,7 @@ func TestHandleRemindEveryDayOfWeek_Failure(t *testing.T) {
 				Hour:      "9",
 				Minute:    "0",
 			},
-			"buy milk").
+			"update weekly report").
 		Return(time.Now(), errors.New("error"))
 
 	err = remindeverydayofweek.HandleRemindEveryDayOfWeek(mockReminderService)(c)

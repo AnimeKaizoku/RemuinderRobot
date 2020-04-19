@@ -28,7 +28,7 @@ func TestHandleRemindWhen_Success(t *testing.T) {
 
 	testCases := map[string]TestCase{
 		"without hours and minutes": {
-			Text: "/remind me tonight buy milk",
+			Text: "/remind me tonight update weekly report",
 			ExpectedWordDateTime: reminder.WordDateTime{
 				When:   reminder.Today,
 				Hour:   20,
@@ -36,7 +36,7 @@ func TestHandleRemindWhen_Success(t *testing.T) {
 			},
 		},
 		"with hours and minutes": {
-			Text: "/remind me tonight at 19:45 buy milk",
+			Text: "/remind me tonight at 19:45 update weekly report",
 			ExpectedWordDateTime: reminder.WordDateTime{
 				When:   reminder.Today,
 				Hour:   19,
@@ -44,7 +44,7 @@ func TestHandleRemindWhen_Success(t *testing.T) {
 			},
 		},
 		"with hours and minutes dot separator": {
-			Text: "/remind me tonight at 19.45 buy milk",
+			Text: "/remind me tonight at 19.45 update weekly report",
 			ExpectedWordDateTime: reminder.WordDateTime{
 				When:   reminder.Today,
 				Hour:   19,
@@ -52,7 +52,7 @@ func TestHandleRemindWhen_Success(t *testing.T) {
 			},
 		},
 		"with only hour": {
-			Text: "/remind me tonight at 19 buy milk",
+			Text: "/remind me tonight at 19 update weekly report",
 			ExpectedWordDateTime: reminder.WordDateTime{
 				When:   reminder.Today,
 				Hour:   19,
@@ -60,7 +60,7 @@ func TestHandleRemindWhen_Success(t *testing.T) {
 			},
 		},
 		"with only hour pm": {
-			Text: "/remind me tonight at 8pm buy milk",
+			Text: "/remind me tonight at 8pm update weekly report",
 			ExpectedWordDateTime: reminder.WordDateTime{
 				When:   reminder.Today,
 				Hour:   20,
@@ -68,7 +68,7 @@ func TestHandleRemindWhen_Success(t *testing.T) {
 			},
 		},
 		"with hour minute": {
-			Text: "/remind me tonight at 8:30pm buy milk",
+			Text: "/remind me tonight at 8:30pm update weekly report",
 			ExpectedWordDateTime: reminder.WordDateTime{
 				When:   reminder.Today,
 				Hour:   20,
@@ -76,7 +76,7 @@ func TestHandleRemindWhen_Success(t *testing.T) {
 			},
 		},
 		"with hour minute dot separator": {
-			Text: "/remind me tonight at 8.30pm buy milk",
+			Text: "/remind me tonight at 8.30pm update weekly report",
 			ExpectedWordDateTime: reminder.WordDateTime{
 				When:   reminder.Today,
 				Hour:   20,
@@ -98,7 +98,7 @@ func TestHandleRemindWhen_Success(t *testing.T) {
 					1,
 					testCases[name].Text,
 					testCases[name].ExpectedWordDateTime,
-					"buy milk").
+					"update weekly report").
 				Return(time.Now(), nil)
 
 			err := remindwhen.HandleRemindWhen(mockReminderService)(c)
@@ -113,7 +113,7 @@ func TestHandleRemindWhen_Failure(t *testing.T) {
 	require.NoError(t, err)
 
 	chat := &tb.Chat{ID: int64(1)}
-	text := "/remind me tonight buy milk"
+	text := "/remind me tonight update weekly report"
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 	bot := fakeBot.NewTBWrapBot()
@@ -129,7 +129,7 @@ func TestHandleRemindWhen_Failure(t *testing.T) {
 				Hour:   20,
 				Minute: 0,
 			},
-			"buy milk").
+			"update weekly report").
 		Return(time.Now(), errors.New("error"))
 
 	err = remindwhen.HandleRemindWhen(mockReminderService)(c)
