@@ -75,7 +75,6 @@ func TestService_AddReminderOnDateTime(t *testing.T) {
 		nextScheduleTime, err := service.AddReminderOnDateTime(chatID, command, reminder.DateTime{
 			DayOfMonth: 1,
 			Month:      date.ToNumericMonth(time.April.String()),
-			Year:       2020,
 			Hour:       13,
 			Minute:     52,
 		}, message)

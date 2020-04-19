@@ -16,7 +16,7 @@ import (
 	"github.com/enrico5b1b4/telegram-bot/reminder/remindcronfunc"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindat"
-	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/reminddaymonthyear"
+	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/reminddaymonth"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/reminddayofweek"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindevery"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindeverydaynumber"
@@ -81,8 +81,8 @@ func main() {
 	telegramBot.HandleMultiRegExp(reminddetail.HandlePattern, reminddetail.HandleRemindDetail(remindDetailService, reminddetail.NewButtons()))
 	telegramBot.HandleMultiRegExp(reminddelete.HandlePattern, reminddelete.HandleRemindDelete(remindDeleteService))
 	telegramBot.HandleRegExp(
-		reminddaymonthyear.HandlePattern,
-		reminddaymonthyear.HandleRemindDayMonthYear(remindDateService),
+		reminddaymonth.HandlePattern,
+		reminddaymonth.HandleRemindDayMonth(remindDateService),
 	)
 	telegramBot.HandleRegExp(
 		reminddayofweek.HandlePattern,

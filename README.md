@@ -35,10 +35,10 @@ Set a reminder in the format `[who] [when] [what]`
 
 #### Fixed times and dates
 - `/remind me at 21:00 update weekly report`  
-- `/remind me on the 1 of december 2020 at 8:23 update weekly report`  
-`/remind me on the 1st of december 2020 at 8:23 update weekly report`  
-- `/remind me on the 1 of december 2020 update weekly report`  
-`/remind me on the 1st of december 2020 update weekly report`  
+- `/remind me on the 1 of december at 8:23 update weekly report`  
+`/remind me on the 1st of december at 8:23 update weekly report`  
+- `/remind me on the 1 of december update weekly report`  
+`/remind me on the 1st of december update weekly report`  
 - `/remind me in 4 minutes update weekly report`  
 - `/remind me in 5 hours update weekly report`  
 - `/remind me in 3 days update weekly report`  

@@ -14,7 +14,7 @@ import (
 	"github.com/enrico5b1b4/telegram-bot/reminder/remindcronfunc"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindat"
-	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/reminddaymonthyear"
+	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/reminddaymonth"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/reminddayofweek"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindevery"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindeverydaynumber"
@@ -45,7 +45,7 @@ func TestE2E(t *testing.T) {
 	require.NoError(t, err)
 
 	telebot.SimulateIncomingMessageToChat(chatID, "/remind me at 20:45 RemindAt")
-	telebot.SimulateIncomingMessageToChat(chatID, "/remind me on the 1st of december 2020 at 8:23 RemindDayMonthYear")
+	telebot.SimulateIncomingMessageToChat(chatID, "/remind me on the 1st of december at 8:23 RemindDayMonth")
 	telebot.SimulateIncomingMessageToChat(chatID, "/remind me every 2 minutes RemindEvery")
 	telebot.SimulateIncomingMessageToChat(chatID, "/remind me every 1st of the month at 8:23 RemindEveryDayNumber")
 	telebot.SimulateIncomingMessageToChat(chatID, "/remind me every 1st of december at 8:23 RemindEveryDayNumberMonth")
@@ -55,7 +55,7 @@ func TestE2E(t *testing.T) {
 	telebot.SimulateIncomingMessageToChat(chatID, "/remind me on tuesday RemindDayOfWeek")
 
 	require.Contains(t, telebot.OutboundSendMessages[0], `Reminder "RemindAt" has been added`)
-	require.Contains(t, telebot.OutboundSendMessages[1], `Reminder "RemindDayMonthYear" has been added`)
+	require.Contains(t, telebot.OutboundSendMessages[1], `Reminder "RemindDayMonth" has been added`)
 	require.Contains(t, telebot.OutboundSendMessages[2], `Reminder "RemindEvery" has been added`)
 	require.Contains(t, telebot.OutboundSendMessages[3], `Reminder "RemindEveryDayNumber" has been added`)
 	require.Contains(t, telebot.OutboundSendMessages[4], `Reminder "RemindEveryDayNumberMonth" has been added`)
@@ -102,8 +102,8 @@ func setup(dbFile string, allowedChats []int) (*fakes.TeleBot, *bolt.DB, error) 
 	telegramBot.HandleMultiRegExp(reminddetail.HandlePattern, reminddetail.HandleRemindDetail(remindDetailService, reminddetail.NewButtons()))
 	telegramBot.HandleMultiRegExp(reminddelete.HandlePattern, reminddelete.HandleRemindDelete(remindDeleteService))
 	telegramBot.HandleRegExp(
-		reminddaymonthyear.HandlePattern,
-		reminddaymonthyear.HandleRemindDayMonthYear(remindDateService),
+		reminddaymonth.HandlePattern,
+		reminddaymonth.HandleRemindDayMonth(remindDateService),
 	)
 	telegramBot.HandleRegExp(
 		reminddayofweek.HandlePattern,

@@ -28,8 +28,8 @@ _delete a reminder_
 
 _set a reminder_
 /remind me at 21:00 update weekly report
-/remind me on the 1st of december 2020 at 8:23 update weekly report
-/remind me on the 1st of december 2020 update weekly report
+/remind me on the 1st of december at 8:23 update weekly report
+/remind me on the 1st of december update weekly report
 /remind me in 4 minutes update weekly report
 /remind me in 5 hours update weekly report
 /remind me in 3 hours, 4 minutes update weekly report

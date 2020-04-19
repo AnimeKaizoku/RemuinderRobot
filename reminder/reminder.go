@@ -19,7 +19,6 @@ type DateTime struct {
 	DayOfMonth int
 	DayOfWeek  string
 	Month      int
-	Year       int
 	Hour       int
 	Minute     int
 }

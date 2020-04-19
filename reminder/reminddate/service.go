@@ -48,7 +48,7 @@ func (s *Service) AddReminderOnDateTime(chatID int, command string, dateTime rem
 	if dateTime.DayOfWeek != "" {
 		schedule = buildScheduleForDateTime(&dateTime)
 	} else {
-		chatLocalTime, err := s.getChatLocalDateTime(chatID, dateTime.Year, dateTime.Month, dateTime.DayOfMonth, dateTime.Hour, dateTime.Minute)
+		chatLocalTime, err := s.getChatLocalDateTime(chatID, dateTime.Month, dateTime.DayOfMonth, dateTime.Hour, dateTime.Minute)
 		if err != nil {
 			return s.timeNow(), err
 		}
@@ -256,7 +256,7 @@ func (s *Service) ScheduleAndAddReminder(rem *reminder.Reminder) (time.Time, err
 	return s.reminderScheduler.GetNextScheduleTime(cronID)
 }
 
-func (s *Service) getChatLocalDateTime(chatID, year, month, day, hour, minute int) (time.Time, error) {
+func (s *Service) getChatLocalDateTime(chatID, month, day, hour, minute int) (time.Time, error) {
 	chatPreference, err := s.chatPreferenceStore.GetChatPreference(chatID)
 	if err != nil {
 		return s.timeNow(), err
@@ -267,7 +267,7 @@ func (s *Service) getChatLocalDateTime(chatID, year, month, day, hour, minute in
 		return s.timeNow(), err
 	}
 
-	return time.Date(year, time.Month(month), day, hour, minute, 0, 0, loc), nil
+	return time.Date(s.timeNow().Year(), time.Month(month), day, hour, minute, 0, 0, loc), nil
 }
 
 var minutesInFutureBeforeInvalid = 2 * time.Minute
