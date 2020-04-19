@@ -16,11 +16,12 @@ type Data struct {
 }
 
 type DateTime struct {
-	Day    int
-	Month  int
-	Year   int
-	Hour   int
-	Minute int
+	DayOfMonth int
+	DayOfWeek  string
+	Month      int
+	Year       int
+	Hour       int
+	Minute     int
 }
 
 type RepeatableDateTime struct {

@@ -15,6 +15,7 @@ import (
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindat"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/reminddaymonthyear"
+	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/reminddayofweek"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindevery"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindeverydaynumber"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindeverydaynumbermonth"
@@ -51,6 +52,7 @@ func TestE2E(t *testing.T) {
 	telebot.SimulateIncomingMessageToChat(chatID, "/remind me every tuesday at 8:23 RemindEveryDayOfWeek")
 	telebot.SimulateIncomingMessageToChat(chatID, "/remind me in 5 minutes RemindIn")
 	telebot.SimulateIncomingMessageToChat(chatID, "/remind me tonight RemindWhen")
+	telebot.SimulateIncomingMessageToChat(chatID, "/remind me on tuesday RemindDayOfWeek")
 
 	require.Contains(t, telebot.OutboundSendMessages[0], `Reminder "RemindAt" has been added`)
 	require.Contains(t, telebot.OutboundSendMessages[1], `Reminder "RemindDayMonthYear" has been added`)
@@ -60,6 +62,7 @@ func TestE2E(t *testing.T) {
 	require.Contains(t, telebot.OutboundSendMessages[5], `Reminder "RemindEveryDayOfWeek" has been added`)
 	require.Contains(t, telebot.OutboundSendMessages[6], `Reminder "RemindIn" has been added`)
 	require.Contains(t, telebot.OutboundSendMessages[7], `Reminder "RemindWhen" has been added`)
+	require.Contains(t, telebot.OutboundSendMessages[8], `Reminder "RemindDayOfWeek" has been added`)
 }
 
 // TODO refactor main to make this setup easier
@@ -101,6 +104,10 @@ func setup(dbFile string, allowedChats []int) (*fakes.TeleBot, *bolt.DB, error) 
 	telegramBot.HandleRegExp(
 		reminddaymonthyear.HandlePattern,
 		reminddaymonthyear.HandleRemindDayMonthYear(remindDateService),
+	)
+	telegramBot.HandleRegExp(
+		reminddayofweek.HandlePattern,
+		reminddayofweek.HandleRemindDayOfWeek(remindDateService),
 	)
 	telegramBot.HandleRegExp(
 		remindeverydaynumber.HandlePattern,

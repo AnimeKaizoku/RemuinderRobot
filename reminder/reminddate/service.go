@@ -5,6 +5,7 @@ package reminddate
 import (
 	"errors"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/enrico5b1b4/telegram-bot/chatpreference"
@@ -43,17 +44,23 @@ func NewService(
 }
 
 func (s *Service) AddReminderOnDateTime(chatID int, command string, dateTime reminder.DateTime, message string) (time.Time, error) {
-	chatLocalTime, err := s.getChatLocalDateTime(chatID, dateTime.Year, dateTime.Month, dateTime.Day, dateTime.Hour, dateTime.Minute)
-	if err != nil {
-		return s.timeNow(), err
+	var schedule string
+	if dateTime.DayOfWeek != "" {
+		schedule = buildScheduleForDateTime(&dateTime)
+	} else {
+		chatLocalTime, err := s.getChatLocalDateTime(chatID, dateTime.Year, dateTime.Month, dateTime.DayOfMonth, dateTime.Hour, dateTime.Minute)
+		if err != nil {
+			return s.timeNow(), err
+		}
+
+		err = s.validateInFuture(chatLocalTime.In(time.UTC))
+		if err != nil {
+			return s.timeNow(), err
+		}
+
+		schedule = buildScheduleForDateTime(&dateTime)
 	}
 
-	err = s.validateInFuture(chatLocalTime.In(time.UTC))
-	if err != nil {
-		return s.timeNow(), err
-	}
-
-	schedule := fmt.Sprintf("%d %d %d %d *", chatLocalTime.Minute(), chatLocalTime.Hour(), chatLocalTime.Day(), chatLocalTime.Month())
 	newReminder := &reminder.Reminder{
 		Job: cron.Job{
 			ChatID:      chatID,
@@ -115,8 +122,8 @@ func (s *Service) convertWordDateTimeToChatLocalDateTime(chatID int, dateTime re
 
 	// default to today
 	timeNowChatLocalTime := s.timeNow().In(loc)
-	hours := 24
 	if dateTime.When == reminder.Tomorrow {
+		hours := 24
 		timeNowChatLocalTime = timeNowChatLocalTime.Add(time.Duration(hours) * time.Hour)
 	}
 
@@ -282,6 +289,24 @@ func buildScheduleForRepeatableDateTime(repeatDateTime *reminder.RepeatableDateT
 		asteriskIfEmpty(repeatDateTime.Month),
 		asteriskIfEmpty(repeatDateTime.DayOfWeek),
 	)
+}
+
+func buildScheduleForDateTime(repeatDateTime *reminder.DateTime) string {
+	return fmt.Sprintf("%s %s %s %s %s",
+		asteriskIfZero(repeatDateTime.Minute),
+		asteriskIfZero(repeatDateTime.Hour),
+		asteriskIfZero(repeatDateTime.DayOfMonth),
+		asteriskIfZero(repeatDateTime.Month),
+		asteriskIfEmpty(repeatDateTime.DayOfWeek),
+	)
+}
+
+func asteriskIfZero(val int) string {
+	if val == 0 {
+		return "*"
+	}
+
+	return strconv.Itoa(val)
 }
 
 func asteriskIfEmpty(val string) string {

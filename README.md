@@ -48,6 +48,7 @@ Set a reminder in the format `[who] [when] [what]`
 `/remind me tonight at 21:20 update weekly report`  
 `/remind me tomorrow morning update weekly report`  
 `/remind me tomorrow at 16:45 update weekly report`  
+- `/remind me on tuesday update weekly report`  
 
 #### Recurring
 - `/remind me every tuesday update weekly report`  

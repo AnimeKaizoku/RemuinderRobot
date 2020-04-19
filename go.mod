@@ -9,6 +9,5 @@ require (
 	github.com/stretchr/testify v1.5.1
 	go.etcd.io/bbolt v1.3.4
 	golang.org/x/sys v0.0.0-20200331124033-c3d80250170d // indirect
-	golang.org/x/text v0.3.0
 	gopkg.in/tucnak/telebot.v2 v2.0.0-20200329125927-3458aeb2e7be
 )

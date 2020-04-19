@@ -1,11 +1,7 @@
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/enrico5b1b4/capture v0.0.2 h1:ebKbSO0TyecWZGNFF1RrSz+B3Vp4igzsll8es/sqW9g=
-github.com/enrico5b1b4/capture v0.0.2/go.mod h1:wj0tQe0FL+zGIwwYXB5g9xxBYJ430v01XArxEZzvWWk=
 github.com/enrico5b1b4/capture v0.0.3 h1:+9VD+iD0Mo4pWeQQ1Ps/uDGS7bsjBM4fw+JBK0aJjFg=
 github.com/enrico5b1b4/capture v0.0.3/go.mod h1:wj0tQe0FL+zGIwwYXB5g9xxBYJ430v01XArxEZzvWWk=
-github.com/enrico5b1b4/tbwrap v0.0.8 h1:RhYZF8U+Ye06NQpEn4kaiw7Y9N1UWxmoHsvaRWwsR00=
-github.com/enrico5b1b4/tbwrap v0.0.8/go.mod h1:80fEMr37K2OgFt7+tMrbsok14Qo+p+4/fpIiHuYUZas=
 github.com/enrico5b1b4/tbwrap v0.0.9 h1:z2xJhVD2q3Yad8r+TxWjAik1KvsK2JbQ8f/aXtqwqy0=
 github.com/enrico5b1b4/tbwrap v0.0.9/go.mod h1:D6dOLAG4oSGTmQZn4GGF25Bj+YcfjPzDCxOBQ+n9opI=
 github.com/golang/mock v1.4.3 h1:GV+pQPG/EUUbkh47niozDcADz6go/dUwhVzdUQHIVRw=

@@ -36,6 +36,7 @@ _set a reminder_
 /remind me in 5 days, 3 hours, 4 minutes update weekly report
 /remind me tonight/this evening/tomorrow/tomorrow morning update weekly report
 /remind me today/tomorrow at 21:00 update weekly report
+/remind me on tuesday update weekly report
 
 _set a recurring reminder_
 /remind me every 1st of the month at 8:23 update weekly report
