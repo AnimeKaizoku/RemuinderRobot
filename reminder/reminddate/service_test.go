@@ -36,10 +36,6 @@ func TestService_AddReminderOnDateTime(t *testing.T) {
 		mockCtrl := gomock.NewController(t)
 		defer mockCtrl.Finish()
 		mocks := createMocks(mockCtrl)
-		mocks.ChatPreferenceStore.EXPECT().GetChatPreference(chatID).Return(&chatpreference.ChatPreference{
-			ChatID:   chatID,
-			TimeZone: "Europe/London",
-		}, nil)
 		mocks.Scheduler.EXPECT().AddReminder(&reminder.Reminder{
 			Job: cron.Job{
 				ChatID:      chatID,

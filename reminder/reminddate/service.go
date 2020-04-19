@@ -44,27 +44,10 @@ func NewService(
 }
 
 func (s *Service) AddReminderOnDateTime(chatID int, command string, dateTime reminder.DateTime, message string) (time.Time, error) {
-	var schedule string
-	if dateTime.DayOfWeek != "" {
-		schedule = buildScheduleForDateTime(&dateTime)
-	} else {
-		chatLocalTime, err := s.getChatLocalDateTime(chatID, dateTime.Month, dateTime.DayOfMonth, dateTime.Hour, dateTime.Minute)
-		if err != nil {
-			return s.timeNow(), err
-		}
-
-		err = s.validateInFuture(chatLocalTime.In(time.UTC))
-		if err != nil {
-			return s.timeNow(), err
-		}
-
-		schedule = buildScheduleForDateTime(&dateTime)
-	}
-
 	newReminder := &reminder.Reminder{
 		Job: cron.Job{
 			ChatID:      chatID,
-			Schedule:    schedule,
+			Schedule:    buildScheduleForDateTime(&dateTime),
 			Type:        cron.Reminder,
 			Status:      cron.Active,
 			RunOnlyOnce: true,
@@ -256,23 +239,8 @@ func (s *Service) ScheduleAndAddReminder(rem *reminder.Reminder) (time.Time, err
 	return s.reminderScheduler.GetNextScheduleTime(cronID)
 }
 
-func (s *Service) getChatLocalDateTime(chatID, month, day, hour, minute int) (time.Time, error) {
-	chatPreference, err := s.chatPreferenceStore.GetChatPreference(chatID)
-	if err != nil {
-		return s.timeNow(), err
-	}
-
-	loc, err := time.LoadLocation(chatPreference.TimeZone)
-	if err != nil {
-		return s.timeNow(), err
-	}
-
-	return time.Date(s.timeNow().Year(), time.Month(month), day, hour, minute, 0, 0, loc), nil
-}
-
-var minutesInFutureBeforeInvalid = 2 * time.Minute
-
 func (s *Service) validateInFuture(t time.Time) error {
+	minutesInFutureBeforeInvalid := 2 * time.Minute
 	currentTimeUTC := s.timeNow().Add(minutesInFutureBeforeInvalid).In(time.UTC)
 	if t.Before(currentTimeUTC) {
 		return errors.New("error: time must be at least 3 minutes in the future")
