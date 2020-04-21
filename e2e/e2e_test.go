@@ -44,7 +44,7 @@ func TestE2E(t *testing.T) {
 	defer database.Close()
 	require.NoError(t, err)
 
-	telebot.SimulateIncomingMessageToChat(chatID, "/remind me at 20:45 RemindAt")
+	telebot.SimulateIncomingMessageToChat(chatID, "/remind me tomorrow at 20:45 RemindAt")
 	telebot.SimulateIncomingMessageToChat(chatID, "/remind me on the 1st of december at 8:23 RemindDayMonth")
 	telebot.SimulateIncomingMessageToChat(chatID, "/remind me every 2 minutes RemindEvery")
 	telebot.SimulateIncomingMessageToChat(chatID, "/remind me every 1st of the month at 8:23 RemindEveryDayNumber")
