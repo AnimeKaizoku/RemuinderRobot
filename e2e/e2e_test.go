@@ -17,6 +17,7 @@ import (
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/reminddaymonth"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/reminddayofweek"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindevery"
+	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindeveryday"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindeverydaynumber"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindeverydaynumbermonth"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindeverydayofweek"
@@ -51,8 +52,9 @@ func TestE2E(t *testing.T) {
 	telebot.SimulateIncomingMessageToChat(chatID, "/remind me every 1st of december at 8:23 RemindEveryDayNumberMonth")
 	telebot.SimulateIncomingMessageToChat(chatID, "/remind me every tuesday at 8:23 RemindEveryDayOfWeek")
 	telebot.SimulateIncomingMessageToChat(chatID, "/remind me in 5 minutes RemindIn")
-	telebot.SimulateIncomingMessageToChat(chatID, "/remind me tonight RemindWhen")
+	telebot.SimulateIncomingMessageToChat(chatID, "/remind me tomorrow RemindWhen")
 	telebot.SimulateIncomingMessageToChat(chatID, "/remind me on tuesday RemindDayOfWeek")
+	telebot.SimulateIncomingMessageToChat(chatID, "/remind me every day RemindEveryDay")
 
 	require.Contains(t, telebot.OutboundSendMessages[0], `Reminder "RemindAt" has been added`)
 	require.Contains(t, telebot.OutboundSendMessages[1], `Reminder "RemindDayMonth" has been added`)
@@ -63,6 +65,7 @@ func TestE2E(t *testing.T) {
 	require.Contains(t, telebot.OutboundSendMessages[6], `Reminder "RemindIn" has been added`)
 	require.Contains(t, telebot.OutboundSendMessages[7], `Reminder "RemindWhen" has been added`)
 	require.Contains(t, telebot.OutboundSendMessages[8], `Reminder "RemindDayOfWeek" has been added`)
+	require.Contains(t, telebot.OutboundSendMessages[9], `Reminder "RemindEveryDay" has been added`)
 }
 
 // TODO refactor main to make this setup easier
@@ -148,6 +151,10 @@ func setup(dbFile string, allowedChats []int) (*fakes.TeleBot, *bolt.DB, error) 
 	telegramBot.HandleRegExp(
 		remindeverydayofweek.HandlePattern,
 		remindeverydayofweek.HandleRemindEveryDayOfWeek(remindDateService),
+	)
+	telegramBot.HandleRegExp(
+		remindeveryday.HandlePattern,
+		remindeveryday.HandleRemindEveryDay(remindDateService),
 	)
 	telegramBot.HandleRegExp(
 		remindat.HandlePattern,

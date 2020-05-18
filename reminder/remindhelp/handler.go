@@ -46,4 +46,5 @@ _set a recurring reminder_
 /remind me every 2 minutes update weekly report
 /remind me every 3 hours, 4 minutes update weekly report
 /remind me every 5 days, 3 hours, 4 minutes update weekly report
+/remind me every day at 8pm update weekly report
 `
