@@ -12,6 +12,7 @@ type Scheduler interface {
 	Add(spec string, cmd func()) (int, error)
 	Remove(ID int)
 	GetEntryByID(ID int) Entry
+	Start()
 }
 
 type JobScheduler struct {
