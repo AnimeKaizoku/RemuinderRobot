@@ -47,4 +47,8 @@ _set a recurring reminder_
 /remind me every 3 hours, 4 minutes update weekly report
 /remind me every 5 days, 3 hours, 4 minutes update weekly report
 /remind me every day at 8pm update weekly report
+
+_set timezone for chat reminders_
+/gettimezone
+/settimezone Europe/London
 `

@@ -15,11 +15,15 @@ import (
 )
 
 type Servicer interface {
-	AddReminderOnDateTime(chatID int, command string, dateTime reminder.DateTime, message string) (time.Time, error)
-	AddReminderOnWordDateTime(chatID int, command string, dateTime reminder.WordDateTime, message string) (time.Time, error)
-	AddRepeatableReminderOnDateTime(chatID int, command string, dateTime *reminder.RepeatableDateTime, message string) (time.Time, error)
-	AddReminderIn(chatID int, command string, amountDateTime reminder.AmountDateTime, message string) (time.Time, error)
-	AddReminderEvery(chatID int, command string, amountDateTime reminder.AmountDateTime, message string) (time.Time, error)
+	AddReminderOnDateTime(chatID int, command string, dateTime reminder.DateTime, message string) (NextScheduleChatTime, error)
+	AddReminderOnWordDateTime(chatID int, command string, dateTime reminder.WordDateTime, message string) (NextScheduleChatTime, error)
+	AddRepeatableReminderOnDateTime(chatID int,
+		command string,
+		dateTime *reminder.RepeatableDateTime,
+		message string,
+	) (NextScheduleChatTime, error)
+	AddReminderIn(chatID int, command string, amountDateTime reminder.AmountDateTime, message string) (NextScheduleChatTime, error)
+	AddReminderEvery(chatID int, command string, amountDateTime reminder.AmountDateTime, message string) (NextScheduleChatTime, error)
 }
 
 type Service struct {
@@ -43,7 +47,11 @@ func NewService(
 	}
 }
 
-func (s *Service) AddReminderOnDateTime(chatID int, command string, dateTime reminder.DateTime, message string) (time.Time, error) {
+func (s *Service) AddReminderOnDateTime(chatID int,
+	command string,
+	dateTime reminder.DateTime,
+	message string,
+) (NextScheduleChatTime, error) {
 	newReminder := &reminder.Reminder{
 		Job: cron.Job{
 			ChatID:      chatID,
@@ -62,15 +70,19 @@ func (s *Service) AddReminderOnDateTime(chatID int, command string, dateTime rem
 	return s.ScheduleAndAddReminder(newReminder)
 }
 
-func (s *Service) AddReminderOnWordDateTime(chatID int, command string, dateTime reminder.WordDateTime, message string) (time.Time, error) {
+func (s *Service) AddReminderOnWordDateTime(chatID int,
+	command string,
+	dateTime reminder.WordDateTime,
+	message string,
+) (NextScheduleChatTime, error) {
 	chatLocalTime, err := s.convertWordDateTimeToChatLocalDateTime(chatID, dateTime)
 	if err != nil {
-		return s.timeNow(), err
+		return NextScheduleChatTime{}, err
 	}
 
 	err = s.validateInFuture(chatLocalTime.In(time.UTC))
 	if err != nil {
-		return s.timeNow(), err
+		return NextScheduleChatTime{}, err
 	}
 
 	schedule := fmt.Sprintf("%d %d %d %d *", chatLocalTime.Minute(), chatLocalTime.Hour(), chatLocalTime.Day(), chatLocalTime.Month())
@@ -124,7 +136,7 @@ func (s *Service) convertWordDateTimeToChatLocalDateTime(chatID int, dateTime re
 
 func (s *Service) AddRepeatableReminderOnDateTime(
 	chatID int, command string, repeatDateTime *reminder.RepeatableDateTime, message string,
-) (time.Time, error) {
+) (NextScheduleChatTime, error) {
 	newReminder := &reminder.Reminder{
 		Job: cron.Job{
 			ChatID:      chatID,
@@ -145,15 +157,15 @@ func (s *Service) AddRepeatableReminderOnDateTime(
 
 func (s *Service) AddReminderIn(
 	chatID int, command string, amountDateTime reminder.AmountDateTime, message string,
-) (time.Time, error) {
+) (NextScheduleChatTime, error) {
 	chatPreference, err := s.chatPreferenceStore.GetChatPreference(chatID)
 	if err != nil {
-		return s.timeNow(), err
+		return NextScheduleChatTime{}, err
 	}
 
 	loc, err := time.LoadLocation(chatPreference.TimeZone)
 	if err != nil {
-		return s.timeNow(), err
+		return NextScheduleChatTime{}, err
 	}
 
 	addedTime := s.timeNow().In(loc).Add(
@@ -183,15 +195,15 @@ func (s *Service) AddReminderIn(
 
 func (s *Service) AddReminderEvery(
 	chatID int, command string, amountDateTime reminder.AmountDateTime, message string,
-) (time.Time, error) {
+) (NextScheduleChatTime, error) {
 	chatPreference, err := s.chatPreferenceStore.GetChatPreference(chatID)
 	if err != nil {
-		return s.timeNow(), err
+		return NextScheduleChatTime{}, err
 	}
 
 	loc, err := time.LoadLocation(chatPreference.TimeZone)
 	if err != nil {
-		return s.timeNow(), err
+		return NextScheduleChatTime{}, err
 	}
 
 	addedTime := s.timeNow().In(loc).Add(
@@ -224,19 +236,39 @@ func (s *Service) AddReminderEvery(
 	return s.ScheduleAndAddReminder(newReminder)
 }
 
-func (s *Service) ScheduleAndAddReminder(rem *reminder.Reminder) (time.Time, error) {
+type NextScheduleChatTime struct {
+	Time     time.Time
+	Location *time.Location
+}
+
+func (s *Service) ScheduleAndAddReminder(rem *reminder.Reminder) (NextScheduleChatTime, error) {
 	cronID, err := s.reminderScheduler.AddReminder(rem)
 	if err != nil {
-		return s.timeNow(), err
+		return NextScheduleChatTime{}, err
 	}
 
 	rem.CronID = cronID
 	_, err = s.reminderStore.CreateReminder(rem)
 	if err != nil {
-		return s.timeNow(), err
+		return NextScheduleChatTime{}, err
 	}
 
-	return s.reminderScheduler.GetNextScheduleTime(cronID)
+	nextScheduleTime, err := s.reminderScheduler.GetNextScheduleTime(cronID)
+	if err != nil {
+		return NextScheduleChatTime{}, err
+	}
+
+	cp, err := s.chatPreferenceStore.GetChatPreference(rem.ChatID)
+	if err != nil {
+		return NextScheduleChatTime{}, err
+	}
+
+	loc, err := time.LoadLocation(cp.TimeZone)
+	if err != nil {
+		return NextScheduleChatTime{}, err
+	}
+
+	return NextScheduleChatTime{Time: nextScheduleTime, Location: loc}, nil
 }
 
 func (s *Service) validateInFuture(t time.Time) error {

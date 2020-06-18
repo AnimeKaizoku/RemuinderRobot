@@ -49,16 +49,16 @@ func (mr *MockStorerMockRecorder) GetChatPreference(chatID interface{}) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetChatPreference", reflect.TypeOf((*MockStorer)(nil).GetChatPreference), chatID)
 }
 
-// CreateChatPreference mocks base method
-func (m *MockStorer) CreateChatPreference(arg0 *chatpreference.ChatPreference) error {
+// UpsertChatPreference mocks base method
+func (m *MockStorer) UpsertChatPreference(arg0 *chatpreference.ChatPreference) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateChatPreference", arg0)
+	ret := m.ctrl.Call(m, "UpsertChatPreference", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// CreateChatPreference indicates an expected call of CreateChatPreference
-func (mr *MockStorerMockRecorder) CreateChatPreference(arg0 interface{}) *gomock.Call {
+// UpsertChatPreference indicates an expected call of UpsertChatPreference
+func (mr *MockStorerMockRecorder) UpsertChatPreference(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateChatPreference", reflect.TypeOf((*MockStorer)(nil).CreateChatPreference), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpsertChatPreference", reflect.TypeOf((*MockStorer)(nil).UpsertChatPreference), arg0)
 }

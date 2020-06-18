@@ -11,11 +11,12 @@ import (
 )
 
 var ChatPreferencesBucket = []byte("chatpreferences")
+
 var ErrNotFound = errors.New("chat preference not found")
 
 type Storer interface {
 	GetChatPreference(chatID int) (*ChatPreference, error)
-	CreateChatPreference(*ChatPreference) error
+	UpsertChatPreference(*ChatPreference) error
 }
 
 type Store struct {
@@ -26,7 +27,7 @@ func NewStore(db *bolt.DB) *Store {
 	return &Store{db: db}
 }
 
-func (s *Store) CreateChatPreference(chatPreference *ChatPreference) error {
+func (s *Store) UpsertChatPreference(chatPreference *ChatPreference) error {
 	return s.db.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket(ChatPreferencesBucket)
 

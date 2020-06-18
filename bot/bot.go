@@ -4,6 +4,8 @@ import (
 	"log"
 
 	"github.com/enrico5b1b4/telegram-bot/chatpreference"
+	"github.com/enrico5b1b4/telegram-bot/chatpreference/timezone/gettimezone"
+	"github.com/enrico5b1b4/telegram-bot/chatpreference/timezone/settimezone"
 	"github.com/enrico5b1b4/telegram-bot/cron"
 	"github.com/enrico5b1b4/telegram-bot/reminder"
 	"github.com/enrico5b1b4/telegram-bot/reminder/loader"
@@ -49,13 +51,14 @@ func New(
 	remindDateService := reminddate.NewService(reminderScheduler, reminderStore, chatPreferenceStore, reminder.RealTimeNow)
 	remindDetailService := reminddetail.NewService(reminderStore, cronScheduler, chatPreferenceStore)
 	reminderLoader := loader.NewService(telegramBot, cronScheduler, reminderStore, chatPreferenceStore, remindCronFuncService)
+	setTimeZoneService := settimezone.NewService(chatPreferenceStore, reminderLoader)
 	remindDetailButtons := reminddetail.NewButtons()
 	remindListButtons := remindlist.NewButtons()
 
 	chatPreferenceService.CreateDefaultChatPreferences(allowedChats)
 
 	// check if DB exists and load schedules
-	remindersLoaded, err := reminderLoader.LoadExistingSchedules()
+	remindersLoaded, err := reminderLoader.LoadSchedulesFromDB()
 	if err != nil {
 		panic(err)
 	}
@@ -113,7 +116,10 @@ func New(
 		remindat.HandlePattern,
 		remindat.HandleRemindAt(remindDateService),
 	)
+	telegramBot.Handle(gettimezone.HandlePattern, gettimezone.HandleGetTimezone(chatPreferenceStore))
+	telegramBot.HandleRegExp(settimezone.HandlePattern, settimezone.HandleSetTimezone(setTimeZoneService))
 
+	// buttons
 	telegramBot.HandleButton(
 		remindDetailButtons[reminddetail.ReminderDetailCloseCommandBtn],
 		reminddetail.HandleCloseBtn(remindDetailButtons),

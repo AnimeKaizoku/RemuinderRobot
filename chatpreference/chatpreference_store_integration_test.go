@@ -24,7 +24,7 @@ func TestChatPreferenceStore_CreateChatPreference(t *testing.T) {
 		cp := &chatpreference.ChatPreference{
 			ChatID: chatID,
 		}
-		err := chatPreferenceStore.CreateChatPreference(cp)
+		err := chatPreferenceStore.UpsertChatPreference(cp)
 		assert.NoError(t, err)
 
 		checkChatPreference, err := chatPreferenceStore.GetChatPreference(chatID)
@@ -47,7 +47,7 @@ func TestChatPreferenceStore_GetChatPreference(t *testing.T) {
 	cp := &chatpreference.ChatPreference{
 		ChatID: chatID,
 	}
-	err = chatPreferenceStore.CreateChatPreference(cp)
+	err = chatPreferenceStore.UpsertChatPreference(cp)
 	assert.NoError(t, err)
 
 	t.Run("success", func(t *testing.T) {

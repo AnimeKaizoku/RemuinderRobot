@@ -14,6 +14,7 @@ import (
 	schedulerMocks "github.com/enrico5b1b4/telegram-bot/reminder/scheduler/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 type Mocks struct {
@@ -23,16 +24,23 @@ type Mocks struct {
 }
 
 const (
-	message = "message"
-	command = "command"
+	message    = "message"
+	command    = "command"
+	timezone   = "Europe/London"
+	chatID     = 1
+	cronID     = 2
+	reminderID = 3
+)
+
+var (
+	stubNextScheduleTime = timeNow()
 )
 
 func TestService_AddReminderOnDateTime(t *testing.T) {
+	loc, err := time.LoadLocation(timezone)
+	require.NoError(t, err)
+
 	t.Run("success with day of month and month", func(t *testing.T) {
-		chatID := 1
-		cronID := 2
-		reminderID := 3
-		stubNextScheduleTime := timeNow()
 		mockCtrl := gomock.NewController(t)
 		defer mockCtrl.Finish()
 		mocks := createMocks(mockCtrl)
@@ -66,6 +74,10 @@ func TestService_AddReminderOnDateTime(t *testing.T) {
 			},
 		}).Return(reminderID, nil)
 		mocks.Scheduler.EXPECT().GetNextScheduleTime(cronID).Return(stubNextScheduleTime, nil)
+		mocks.ChatPreferenceStore.EXPECT().GetChatPreference(chatID).Return(&chatpreference.ChatPreference{
+			ChatID:   chatID,
+			TimeZone: timezone,
+		}, nil)
 
 		service := reminddate.NewService(mocks.Scheduler, mocks.ReminderStore, mocks.ChatPreferenceStore, timeNow)
 		nextScheduleTime, err := service.AddReminderOnDateTime(chatID, command, reminder.DateTime{
@@ -75,13 +87,9 @@ func TestService_AddReminderOnDateTime(t *testing.T) {
 			Minute:     52,
 		}, message)
 		assert.NoError(t, err)
-		assert.Equal(t, stubNextScheduleTime, nextScheduleTime)
+		assert.Equal(t, reminddate.NextScheduleChatTime{Time: timeNow(), Location: loc}, nextScheduleTime)
 	})
 	t.Run("success with day of month without month", func(t *testing.T) {
-		chatID := 1
-		cronID := 2
-		reminderID := 3
-		stubNextScheduleTime := timeNow()
 		mockCtrl := gomock.NewController(t)
 		defer mockCtrl.Finish()
 		mocks := createMocks(mockCtrl)
@@ -115,6 +123,10 @@ func TestService_AddReminderOnDateTime(t *testing.T) {
 			},
 		}).Return(reminderID, nil)
 		mocks.Scheduler.EXPECT().GetNextScheduleTime(cronID).Return(stubNextScheduleTime, nil)
+		mocks.ChatPreferenceStore.EXPECT().GetChatPreference(chatID).Return(&chatpreference.ChatPreference{
+			ChatID:   chatID,
+			TimeZone: timezone,
+		}, nil)
 
 		service := reminddate.NewService(mocks.Scheduler, mocks.ReminderStore, mocks.ChatPreferenceStore, timeNow)
 		nextScheduleTime, err := service.AddReminderOnDateTime(chatID, command, reminder.DateTime{
@@ -124,13 +136,9 @@ func TestService_AddReminderOnDateTime(t *testing.T) {
 			Minute:     52,
 		}, message)
 		assert.NoError(t, err)
-		assert.Equal(t, stubNextScheduleTime, nextScheduleTime)
+		assert.Equal(t, reminddate.NextScheduleChatTime{Time: timeNow(), Location: loc}, nextScheduleTime)
 	})
 	t.Run("success with day of week", func(t *testing.T) {
-		chatID := 1
-		cronID := 2
-		reminderID := 3
-		stubNextScheduleTime := timeNow()
 		mockCtrl := gomock.NewController(t)
 		defer mockCtrl.Finish()
 		mocks := createMocks(mockCtrl)
@@ -164,6 +172,10 @@ func TestService_AddReminderOnDateTime(t *testing.T) {
 			},
 		}).Return(reminderID, nil)
 		mocks.Scheduler.EXPECT().GetNextScheduleTime(cronID).Return(stubNextScheduleTime, nil)
+		mocks.ChatPreferenceStore.EXPECT().GetChatPreference(chatID).Return(&chatpreference.ChatPreference{
+			ChatID:   chatID,
+			TimeZone: timezone,
+		}, nil)
 
 		service := reminddate.NewService(mocks.Scheduler, mocks.ReminderStore, mocks.ChatPreferenceStore, timeNow)
 		nextScheduleTime, err := service.AddReminderOnDateTime(chatID, command, reminder.DateTime{
@@ -172,22 +184,21 @@ func TestService_AddReminderOnDateTime(t *testing.T) {
 			Minute:    52,
 		}, message)
 		assert.NoError(t, err)
-		assert.Equal(t, stubNextScheduleTime, nextScheduleTime)
+		assert.Equal(t, reminddate.NextScheduleChatTime{Time: timeNow(), Location: loc}, nextScheduleTime)
 	})
 }
 
 func TestService_AddReminderOnWordDateTime(t *testing.T) {
+	loc, err := time.LoadLocation(timezone)
+	require.NoError(t, err)
+
 	t.Run("success", func(t *testing.T) {
-		chatID := 1
-		cronID := 2
-		reminderID := 3
-		stubNextScheduleTime := timeNow()
 		mockCtrl := gomock.NewController(t)
 		defer mockCtrl.Finish()
 		mocks := createMocks(mockCtrl)
 		mocks.ChatPreferenceStore.EXPECT().GetChatPreference(chatID).Return(&chatpreference.ChatPreference{
 			ChatID:   chatID,
-			TimeZone: "Europe/London",
+			TimeZone: timezone,
 		}, nil)
 		mocks.Scheduler.EXPECT().AddReminder(&reminder.Reminder{
 			Job: cron.Job{
@@ -219,6 +230,10 @@ func TestService_AddReminderOnWordDateTime(t *testing.T) {
 			},
 		}).Return(reminderID, nil)
 		mocks.Scheduler.EXPECT().GetNextScheduleTime(cronID).Return(stubNextScheduleTime, nil)
+		mocks.ChatPreferenceStore.EXPECT().GetChatPreference(chatID).Return(&chatpreference.ChatPreference{
+			ChatID:   chatID,
+			TimeZone: timezone,
+		}, nil)
 
 		service := reminddate.NewService(mocks.Scheduler, mocks.ReminderStore, mocks.ChatPreferenceStore, timeNow)
 		nextScheduleTime, err := service.AddReminderOnWordDateTime(chatID, command, reminder.WordDateTime{
@@ -227,16 +242,15 @@ func TestService_AddReminderOnWordDateTime(t *testing.T) {
 			Minute: 52,
 		}, message)
 		assert.NoError(t, err)
-		assert.Equal(t, stubNextScheduleTime, nextScheduleTime)
+		assert.Equal(t, reminddate.NextScheduleChatTime{Time: timeNow(), Location: loc}, nextScheduleTime)
 	})
 }
 
 func TestService_AddRepeatableReminderOnDateTime(t *testing.T) {
+	loc, err := time.LoadLocation(timezone)
+	require.NoError(t, err)
+
 	t.Run("success", func(t *testing.T) {
-		chatID := 1
-		cronID := 2
-		reminderID := 3
-		stubNextScheduleTime := timeNow()
 		mockCtrl := gomock.NewController(t)
 		defer mockCtrl.Finish()
 		mocks := createMocks(mockCtrl)
@@ -270,6 +284,10 @@ func TestService_AddRepeatableReminderOnDateTime(t *testing.T) {
 			},
 		}).Return(reminderID, nil)
 		mocks.Scheduler.EXPECT().GetNextScheduleTime(cronID).Return(stubNextScheduleTime, nil)
+		mocks.ChatPreferenceStore.EXPECT().GetChatPreference(chatID).Return(&chatpreference.ChatPreference{
+			ChatID:   chatID,
+			TimeZone: timezone,
+		}, nil)
 
 		service := reminddate.NewService(mocks.Scheduler, mocks.ReminderStore, mocks.ChatPreferenceStore, timeNow)
 		nextScheduleTime, err := service.AddRepeatableReminderOnDateTime(chatID, command, &reminder.RepeatableDateTime{
@@ -279,22 +297,21 @@ func TestService_AddRepeatableReminderOnDateTime(t *testing.T) {
 			Minute:     "52",
 		}, message)
 		assert.NoError(t, err)
-		assert.Equal(t, stubNextScheduleTime, nextScheduleTime)
+		assert.Equal(t, reminddate.NextScheduleChatTime{Time: timeNow(), Location: loc}, nextScheduleTime)
 	})
 }
 
 func TestService_AddReminderIn(t *testing.T) {
+	loc, err := time.LoadLocation(timezone)
+	require.NoError(t, err)
+
 	t.Run("success", func(t *testing.T) {
-		chatID := 1
-		cronID := 2
-		reminderID := 3
-		stubNextScheduleTime := timeNow()
 		mockCtrl := gomock.NewController(t)
 		defer mockCtrl.Finish()
 		mocks := createMocks(mockCtrl)
 		mocks.ChatPreferenceStore.EXPECT().GetChatPreference(chatID).Return(&chatpreference.ChatPreference{
 			ChatID:   chatID,
-			TimeZone: "Europe/London",
+			TimeZone: timezone,
 		}, nil)
 		mocks.Scheduler.EXPECT().AddReminder(&reminder.Reminder{
 			Job: cron.Job{
@@ -326,6 +343,10 @@ func TestService_AddReminderIn(t *testing.T) {
 			},
 		}).Return(reminderID, nil)
 		mocks.Scheduler.EXPECT().GetNextScheduleTime(cronID).Return(stubNextScheduleTime, nil)
+		mocks.ChatPreferenceStore.EXPECT().GetChatPreference(chatID).Return(&chatpreference.ChatPreference{
+			ChatID:   chatID,
+			TimeZone: timezone,
+		}, nil)
 
 		service := reminddate.NewService(mocks.Scheduler, mocks.ReminderStore, mocks.ChatPreferenceStore, timeNow)
 		nextScheduleTime, err := service.AddReminderIn(chatID, command, reminder.AmountDateTime{
@@ -334,22 +355,21 @@ func TestService_AddReminderIn(t *testing.T) {
 			Days:    3,
 		}, message)
 		assert.NoError(t, err)
-		assert.Equal(t, stubNextScheduleTime, nextScheduleTime)
+		assert.Equal(t, reminddate.NextScheduleChatTime{Time: timeNow(), Location: loc}, nextScheduleTime)
 	})
 }
 
 func TestService_AddReminderEvery(t *testing.T) {
+	loc, err := time.LoadLocation(timezone)
+	require.NoError(t, err)
+
 	t.Run("success", func(t *testing.T) {
-		chatID := 1
-		cronID := 2
-		reminderID := 3
-		stubNextScheduleTime := timeNow()
 		mockCtrl := gomock.NewController(t)
 		defer mockCtrl.Finish()
 		mocks := createMocks(mockCtrl)
 		mocks.ChatPreferenceStore.EXPECT().GetChatPreference(chatID).Return(&chatpreference.ChatPreference{
 			ChatID:   chatID,
-			TimeZone: "Europe/London",
+			TimeZone: timezone,
 		}, nil)
 		mocks.Scheduler.EXPECT().AddReminder(&reminder.Reminder{
 			Job: cron.Job{
@@ -391,6 +411,10 @@ func TestService_AddReminderEvery(t *testing.T) {
 			},
 		}).Return(reminderID, nil)
 		mocks.Scheduler.EXPECT().GetNextScheduleTime(cronID).Return(stubNextScheduleTime, nil)
+		mocks.ChatPreferenceStore.EXPECT().GetChatPreference(chatID).Return(&chatpreference.ChatPreference{
+			ChatID:   chatID,
+			TimeZone: timezone,
+		}, nil)
 
 		service := reminddate.NewService(mocks.Scheduler, mocks.ReminderStore, mocks.ChatPreferenceStore, timeNow)
 		nextScheduleTime, err := service.AddReminderEvery(chatID, command, reminder.AmountDateTime{
@@ -399,7 +423,7 @@ func TestService_AddReminderEvery(t *testing.T) {
 			Days:    3,
 		}, message)
 		assert.NoError(t, err)
-		assert.Equal(t, stubNextScheduleTime, nextScheduleTime)
+		assert.Equal(t, reminddate.NextScheduleChatTime{Time: timeNow(), Location: loc}, nextScheduleTime)
 	})
 }
 
@@ -412,6 +436,6 @@ func createMocks(mockCtrl *gomock.Controller) Mocks {
 }
 
 func timeNow() time.Time {
-	timeLoc, _ := time.LoadLocation("Europe/London")
+	timeLoc, _ := time.LoadLocation(timezone)
 	return time.Date(2020, time.April, 1, 13, 45, 0, 0, timeLoc)
 }

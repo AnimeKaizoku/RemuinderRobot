@@ -14,7 +14,7 @@ func (s *Service) CreateDefaultChatPreferences(chats []int) {
 	for _, chatID := range chats {
 		_, err := s.store.GetChatPreference(chatID)
 		if err != nil && err == ErrNotFound {
-			_ = s.store.CreateChatPreference(&ChatPreference{ChatID: chatID, TimeZone: defaultTimeZone})
+			_ = s.store.UpsertChatPreference(&ChatPreference{ChatID: chatID, TimeZone: defaultTimeZone})
 		}
 	}
 }

@@ -8,6 +8,7 @@ import (
 
 	"github.com/enrico5b1b4/tbwrap"
 	"github.com/enrico5b1b4/telegram-bot/reminder"
+	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/mocks"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindevery"
 	fakeBot "github.com/enrico5b1b4/telegram-bot/telegram/fakes"
@@ -40,7 +41,7 @@ func TestHandleRemindEveryPattern1(t *testing.T) {
 					Minutes: 2,
 				},
 				"update weekly report").
-			Return(time.Now(), nil)
+			Return(reminddate.NextScheduleChatTime{Time: time.Now(), Location: time.UTC}, nil)
 
 		err := remindevery.HandleRemindEvery(mockReminderService)(c)
 		require.NoError(t, err)
@@ -64,7 +65,7 @@ func TestHandleRemindEveryPattern1(t *testing.T) {
 					Minutes: 2,
 				},
 				"update weekly report").
-			Return(time.Now(), errors.New("error"))
+			Return(reminddate.NextScheduleChatTime{}, errors.New("error"))
 
 		err := remindevery.HandleRemindEvery(mockReminderService)(c)
 		require.Error(t, err)
@@ -96,7 +97,7 @@ func TestHandleRemindEveryPattern2(t *testing.T) {
 					Minutes: 2,
 				},
 				"update weekly report").
-			Return(time.Now(), nil)
+			Return(reminddate.NextScheduleChatTime{Time: time.Now(), Location: time.UTC}, nil)
 
 		err := remindevery.HandleRemindEvery(mockReminderService)(c)
 		require.NoError(t, err)
@@ -120,7 +121,7 @@ func TestHandleRemindEveryPattern2(t *testing.T) {
 					Minutes: 2,
 				},
 				"update weekly report").
-			Return(time.Now(), errors.New("error"))
+			Return(reminddate.NextScheduleChatTime{}, errors.New("error"))
 
 		err := remindevery.HandleRemindEvery(mockReminderService)(c)
 		require.Error(t, err)
@@ -152,7 +153,7 @@ func TestHandleRemindEveryPattern3(t *testing.T) {
 					Minutes: 2,
 				},
 				"update weekly report").
-			Return(time.Now(), nil)
+			Return(reminddate.NextScheduleChatTime{Time: time.Now(), Location: time.UTC}, nil)
 
 		err := remindevery.HandleRemindEvery(mockReminderService)(c)
 		require.NoError(t, err)
@@ -176,7 +177,7 @@ func TestHandleRemindEveryPattern3(t *testing.T) {
 					Minutes: 2,
 				},
 				"update weekly report").
-			Return(time.Now(), errors.New("error"))
+			Return(reminddate.NextScheduleChatTime{}, errors.New("error"))
 
 		err := remindevery.HandleRemindEvery(mockReminderService)(c)
 		require.Error(t, err)

@@ -2,12 +2,11 @@ package reminddate
 
 import (
 	"fmt"
-	"time"
 )
 
-func ReminderAddedSuccessMessage(message string, nextSchedule time.Time) string {
+func ReminderAddedSuccessMessage(message string, nextSchedule NextScheduleChatTime) string {
 	return fmt.Sprintf("Reminder \"%s\" has been added for %s",
 		message,
-		nextSchedule.Format("Mon, 02 Jan 2006 15:04 MST"),
+		nextSchedule.Time.In(nextSchedule.Location).Format("Mon, 02 Jan 2006 15:04 MST"),
 	)
 }

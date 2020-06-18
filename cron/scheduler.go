@@ -3,6 +3,7 @@ package cron
 //go:generate mockgen -destination=./mocks/mock_Scheduler.go -package=mocks github.com/enrico5b1b4/telegram-bot/cron Scheduler
 
 import (
+	"errors"
 	"time"
 
 	"github.com/robfig/cron/v3"
@@ -13,6 +14,7 @@ type Scheduler interface {
 	Remove(ID int)
 	GetEntryByID(ID int) Entry
 	Start()
+	Stop() error
 }
 
 type JobScheduler struct {
@@ -33,6 +35,18 @@ func NewScheduler() *JobScheduler {
 
 func (s *JobScheduler) Start() {
 	s.c.Start()
+}
+
+func (s *JobScheduler) Stop() error {
+	ctx := s.c.Stop()
+	stopDeadline := 10 * time.Second
+
+	select {
+	case <-time.After(stopDeadline):
+		return errors.New("timed out waiting for scheduler to terminate")
+	case <-ctx.Done():
+		return nil
+	}
 }
 
 func (s *JobScheduler) Add(spec string, cmd func()) (int, error) {

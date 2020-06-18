@@ -77,6 +77,15 @@ func TestE2E(t *testing.T) {
 	require.Contains(t, telebot.OutboundSendMessages[10], `MSG8_`)
 	require.Contains(t, telebot.OutboundSendMessages[10], `MSG9_`)
 	require.Contains(t, telebot.OutboundSendMessages[10], `MSG10_`)
+
+	telebot.SimulateIncomingMessageToChat(chatID, "/gettimezone")
+	require.Contains(t, telebot.OutboundSendMessages[11], `Europe/London`)
+
+	telebot.SimulateIncomingMessageToChat(chatID, "/settimezone Europe/Rome")
+	require.Contains(t, telebot.OutboundSendMessages[12], `Europe/Rome`)
+
+	telebot.SimulateIncomingMessageToChat(chatID, "/gettimezone")
+	require.Contains(t, telebot.OutboundSendMessages[12], `Europe/Rome`)
 }
 
 func setup(dbFile string, allowedChats []int) (*fakes.TeleBot, *bolt.DB, error) {
