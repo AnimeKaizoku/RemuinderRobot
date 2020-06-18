@@ -87,7 +87,7 @@ func TestService_AddReminderOnDateTime(t *testing.T) {
 			Minute:     52,
 		}, message)
 		assert.NoError(t, err)
-		assert.Equal(t, reminddate.NextScheduleChatTime{Time: timeNow(), Location: loc}, nextScheduleTime)
+		assert.Equal(t, reminder.NextScheduleChatTime{Time: timeNow(), Location: loc}, nextScheduleTime)
 	})
 	t.Run("success with day of month without month", func(t *testing.T) {
 		mockCtrl := gomock.NewController(t)
@@ -136,7 +136,7 @@ func TestService_AddReminderOnDateTime(t *testing.T) {
 			Minute:     52,
 		}, message)
 		assert.NoError(t, err)
-		assert.Equal(t, reminddate.NextScheduleChatTime{Time: timeNow(), Location: loc}, nextScheduleTime)
+		assert.Equal(t, reminder.NextScheduleChatTime{Time: timeNow(), Location: loc}, nextScheduleTime)
 	})
 	t.Run("success with day of week", func(t *testing.T) {
 		mockCtrl := gomock.NewController(t)
@@ -184,7 +184,7 @@ func TestService_AddReminderOnDateTime(t *testing.T) {
 			Minute:    52,
 		}, message)
 		assert.NoError(t, err)
-		assert.Equal(t, reminddate.NextScheduleChatTime{Time: timeNow(), Location: loc}, nextScheduleTime)
+		assert.Equal(t, reminder.NextScheduleChatTime{Time: timeNow(), Location: loc}, nextScheduleTime)
 	})
 }
 
@@ -242,7 +242,7 @@ func TestService_AddReminderOnWordDateTime(t *testing.T) {
 			Minute: 52,
 		}, message)
 		assert.NoError(t, err)
-		assert.Equal(t, reminddate.NextScheduleChatTime{Time: timeNow(), Location: loc}, nextScheduleTime)
+		assert.Equal(t, reminder.NextScheduleChatTime{Time: timeNow(), Location: loc}, nextScheduleTime)
 	})
 }
 
@@ -297,7 +297,7 @@ func TestService_AddRepeatableReminderOnDateTime(t *testing.T) {
 			Minute:     "52",
 		}, message)
 		assert.NoError(t, err)
-		assert.Equal(t, reminddate.NextScheduleChatTime{Time: timeNow(), Location: loc}, nextScheduleTime)
+		assert.Equal(t, reminder.NextScheduleChatTime{Time: timeNow(), Location: loc}, nextScheduleTime)
 	})
 }
 
@@ -355,7 +355,7 @@ func TestService_AddReminderIn(t *testing.T) {
 			Days:    3,
 		}, message)
 		assert.NoError(t, err)
-		assert.Equal(t, reminddate.NextScheduleChatTime{Time: timeNow(), Location: loc}, nextScheduleTime)
+		assert.Equal(t, reminder.NextScheduleChatTime{Time: timeNow(), Location: loc}, nextScheduleTime)
 	})
 }
 
@@ -423,7 +423,7 @@ func TestService_AddReminderEvery(t *testing.T) {
 			Days:    3,
 		}, message)
 		assert.NoError(t, err)
-		assert.Equal(t, reminddate.NextScheduleChatTime{Time: timeNow(), Location: loc}, nextScheduleTime)
+		assert.Equal(t, reminder.NextScheduleChatTime{Time: timeNow(), Location: loc}, nextScheduleTime)
 	})
 }
 

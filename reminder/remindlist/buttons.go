@@ -29,10 +29,7 @@ func NewButtons() map[string]*telebot.InlineButton {
 	}
 }
 
-func HandleReminderListRemoveCompletedRemindersBtn(
-	reminderListService Servicer,
-	buttons map[string]*telebot.InlineButton,
-) func(c tbwrap.Context) error {
+func HandleReminderListRemoveCompletedRemindersBtn(reminderListService Servicer) func(c tbwrap.Context) error {
 	return func(c tbwrap.Context) error {
 		err := c.Respond(c.Callback())
 		if err != nil {
@@ -50,9 +47,7 @@ func HandleReminderListRemoveCompletedRemindersBtn(
 	}
 }
 
-func HandleCloseBtn(
-	buttons map[string]*telebot.InlineButton,
-) func(c tbwrap.Context) error {
+func HandleCloseBtn() func(c tbwrap.Context) error {
 	return func(c tbwrap.Context) error {
 		messageID, err := strconv.Atoi(c.Callback().Data)
 		if err != nil {

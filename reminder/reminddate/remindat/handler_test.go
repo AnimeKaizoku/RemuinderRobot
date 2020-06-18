@@ -8,7 +8,6 @@ import (
 
 	"github.com/enrico5b1b4/tbwrap"
 	"github.com/enrico5b1b4/telegram-bot/reminder"
-	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/mocks"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindat"
 	fakeBot "github.com/enrico5b1b4/telegram-bot/telegram/fakes"
@@ -92,7 +91,7 @@ func TestHandleRemindAt_Success(t *testing.T) {
 					testCases[name].Text,
 					testCases[name].ExpectedWordDateTime,
 					"update weekly report").
-				Return(reminddate.NextScheduleChatTime{Time: time.Now(), Location: time.UTC}, nil)
+				Return(reminder.NextScheduleChatTime{Time: time.Now(), Location: time.UTC}, nil)
 
 			err := remindat.HandleRemindAt(mockReminderService)(c)
 			require.NoError(t, err)
@@ -122,7 +121,7 @@ func TestHandleRemindAt_Failure(t *testing.T) {
 				Minute: 45,
 			},
 			"update weekly report").
-		Return(reminddate.NextScheduleChatTime{}, errors.New("error"))
+		Return(reminder.NextScheduleChatTime{}, errors.New("error"))
 
 	err = remindat.HandleRemindAt(mockReminderService)(c)
 	require.Error(t, err)

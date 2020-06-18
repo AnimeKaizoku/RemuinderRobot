@@ -8,7 +8,6 @@ import (
 
 	"github.com/enrico5b1b4/tbwrap"
 	"github.com/enrico5b1b4/telegram-bot/reminder"
-	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/mocks"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/reminddayofweek"
 	fakeBot "github.com/enrico5b1b4/telegram-bot/telegram/fakes"
@@ -100,7 +99,7 @@ func TestHandleRemindDayOfWeek_Success(t *testing.T) {
 					testCases[name].Text,
 					testCases[name].ExpectedDateTime,
 					"update weekly report").
-				Return(reminddate.NextScheduleChatTime{Time: time.Now(), Location: time.UTC}, nil)
+				Return(reminder.NextScheduleChatTime{Time: time.Now(), Location: time.UTC}, nil)
 
 			err := reminddayofweek.HandleRemindDayOfWeek(mockReminderService)(c)
 			require.NoError(t, err)
@@ -131,7 +130,7 @@ func TestHandleRemindDayOfWeek_Failure(t *testing.T) {
 				Minute:    0,
 			},
 			"update weekly report").
-		Return(reminddate.NextScheduleChatTime{}, errors.New("error"))
+		Return(reminder.NextScheduleChatTime{}, errors.New("error"))
 
 	err = reminddayofweek.HandleRemindDayOfWeek(mockReminderService)(c)
 	require.Error(t, err)

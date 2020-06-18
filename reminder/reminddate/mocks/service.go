@@ -8,7 +8,6 @@ import (
 	reflect "reflect"
 
 	reminder "github.com/enrico5b1b4/telegram-bot/reminder"
-	reminddate "github.com/enrico5b1b4/telegram-bot/reminder/reminddate"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -36,10 +35,10 @@ func (m *MockServicer) EXPECT() *MockServicerMockRecorder {
 }
 
 // AddReminderOnDateTime mocks base method
-func (m *MockServicer) AddReminderOnDateTime(chatID int, command string, dateTime reminder.DateTime, message string) (reminddate.NextScheduleChatTime, error) {
+func (m *MockServicer) AddReminderOnDateTime(chatID int, command string, dateTime reminder.DateTime, message string) (reminder.NextScheduleChatTime, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddReminderOnDateTime", chatID, command, dateTime, message)
-	ret0, _ := ret[0].(reminddate.NextScheduleChatTime)
+	ret0, _ := ret[0].(reminder.NextScheduleChatTime)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -51,10 +50,10 @@ func (mr *MockServicerMockRecorder) AddReminderOnDateTime(chatID, command, dateT
 }
 
 // AddReminderOnWordDateTime mocks base method
-func (m *MockServicer) AddReminderOnWordDateTime(chatID int, command string, dateTime reminder.WordDateTime, message string) (reminddate.NextScheduleChatTime, error) {
+func (m *MockServicer) AddReminderOnWordDateTime(chatID int, command string, dateTime reminder.WordDateTime, message string) (reminder.NextScheduleChatTime, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddReminderOnWordDateTime", chatID, command, dateTime, message)
-	ret0, _ := ret[0].(reminddate.NextScheduleChatTime)
+	ret0, _ := ret[0].(reminder.NextScheduleChatTime)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -66,10 +65,10 @@ func (mr *MockServicerMockRecorder) AddReminderOnWordDateTime(chatID, command, d
 }
 
 // AddRepeatableReminderOnDateTime mocks base method
-func (m *MockServicer) AddRepeatableReminderOnDateTime(chatID int, command string, dateTime *reminder.RepeatableDateTime, message string) (reminddate.NextScheduleChatTime, error) {
+func (m *MockServicer) AddRepeatableReminderOnDateTime(chatID int, command string, dateTime *reminder.RepeatableDateTime, message string) (reminder.NextScheduleChatTime, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddRepeatableReminderOnDateTime", chatID, command, dateTime, message)
-	ret0, _ := ret[0].(reminddate.NextScheduleChatTime)
+	ret0, _ := ret[0].(reminder.NextScheduleChatTime)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -81,10 +80,10 @@ func (mr *MockServicerMockRecorder) AddRepeatableReminderOnDateTime(chatID, comm
 }
 
 // AddReminderIn mocks base method
-func (m *MockServicer) AddReminderIn(chatID int, command string, amountDateTime reminder.AmountDateTime, message string) (reminddate.NextScheduleChatTime, error) {
+func (m *MockServicer) AddReminderIn(chatID int, command string, amountDateTime reminder.AmountDateTime, message string) (reminder.NextScheduleChatTime, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddReminderIn", chatID, command, amountDateTime, message)
-	ret0, _ := ret[0].(reminddate.NextScheduleChatTime)
+	ret0, _ := ret[0].(reminder.NextScheduleChatTime)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -96,10 +95,10 @@ func (mr *MockServicerMockRecorder) AddReminderIn(chatID, command, amountDateTim
 }
 
 // AddReminderEvery mocks base method
-func (m *MockServicer) AddReminderEvery(chatID int, command string, amountDateTime reminder.AmountDateTime, message string) (reminddate.NextScheduleChatTime, error) {
+func (m *MockServicer) AddReminderEvery(chatID int, command string, amountDateTime reminder.AmountDateTime, message string) (reminder.NextScheduleChatTime, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddReminderEvery", chatID, command, amountDateTime, message)
-	ret0, _ := ret[0].(reminddate.NextScheduleChatTime)
+	ret0, _ := ret[0].(reminder.NextScheduleChatTime)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

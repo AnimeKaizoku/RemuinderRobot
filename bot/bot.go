@@ -54,6 +54,7 @@ func New(
 	setTimeZoneService := settimezone.NewService(chatPreferenceStore, reminderLoader)
 	remindDetailButtons := reminddetail.NewButtons()
 	remindListButtons := remindlist.NewButtons()
+	remindSnoozeButtons := remindcronfunc.NewButtons()
 
 	chatPreferenceService.CreateDefaultChatPreferences(allowedChats)
 
@@ -122,23 +123,35 @@ func New(
 	// buttons
 	telegramBot.HandleButton(
 		remindDetailButtons[reminddetail.ReminderDetailCloseCommandBtn],
-		reminddetail.HandleCloseBtn(remindDetailButtons),
+		reminddetail.HandleCloseBtn(),
 	)
 	telegramBot.HandleButton(
 		remindDetailButtons[reminddetail.ReminderDetailDeleteBtn],
-		reminddetail.HandleReminderDetailDeleteBtn(remindDetailService, remindDetailButtons),
+		reminddetail.HandleReminderDetailDeleteBtn(remindDetailService),
 	)
 	telegramBot.HandleButton(
 		remindDetailButtons[reminddetail.ReminderDetailShowReminderCommandBtn],
-		reminddetail.HandleReminderShowReminderCommandBtn(remindDetailService, remindDetailButtons),
+		reminddetail.HandleReminderShowReminderCommandBtn(remindDetailService),
 	)
 	telegramBot.HandleButton(
 		remindListButtons[remindlist.ReminderListRemoveCompletedRemindersBtn],
-		remindlist.HandleReminderListRemoveCompletedRemindersBtn(remindListService, remindListButtons),
+		remindlist.HandleReminderListRemoveCompletedRemindersBtn(remindListService),
 	)
 	telegramBot.HandleButton(
 		remindListButtons[remindlist.ReminderListCloseCommandBtn],
-		remindlist.HandleCloseBtn(remindListButtons),
+		remindlist.HandleCloseBtn(),
+	)
+	telegramBot.HandleButton(
+		remindSnoozeButtons[remindcronfunc.Snooze15MinuteBtn],
+		remindcronfunc.HandleReminderSnoozeBtn(remindDateService, reminderStore, reminder.AmountDateTime{Minutes: 15}),
+	)
+	telegramBot.HandleButton(
+		remindSnoozeButtons[remindcronfunc.Snooze30MinuteBtn],
+		remindcronfunc.HandleReminderSnoozeBtn(remindDateService, reminderStore, reminder.AmountDateTime{Minutes: 30}),
+	)
+	telegramBot.HandleButton(
+		remindSnoozeButtons[remindcronfunc.Snooze1HourBtn],
+		remindcronfunc.HandleReminderSnoozeBtn(remindDateService, reminderStore, reminder.AmountDateTime{Minutes: 60}),
 	)
 
 	return &Bot{

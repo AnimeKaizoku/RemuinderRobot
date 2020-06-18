@@ -35,10 +35,7 @@ func NewButtons() map[string]*telebot.InlineButton {
 	}
 }
 
-func HandleReminderDetailDeleteBtn(
-	reminderDetailService Servicer,
-	buttons map[string]*telebot.InlineButton,
-) func(c tbwrap.Context) error {
+func HandleReminderDetailDeleteBtn(reminderDetailService Servicer) func(c tbwrap.Context) error {
 	return func(c tbwrap.Context) error {
 		reminderID, err := strconv.Atoi(c.Callback().Data)
 		if err != nil {
@@ -61,10 +58,7 @@ func HandleReminderDetailDeleteBtn(
 	}
 }
 
-func HandleReminderShowReminderCommandBtn(
-	reminderDetailService Servicer,
-	buttons map[string]*telebot.InlineButton,
-) func(c tbwrap.Context) error {
+func HandleReminderShowReminderCommandBtn(reminderDetailService Servicer) func(c tbwrap.Context) error {
 	return func(c tbwrap.Context) error {
 		reminderID, err := strconv.Atoi(c.Callback().Data)
 		if err != nil {
@@ -87,9 +81,7 @@ func HandleReminderShowReminderCommandBtn(
 	}
 }
 
-func HandleCloseBtn(
-	buttons map[string]*telebot.InlineButton,
-) func(c tbwrap.Context) error {
+func HandleCloseBtn() func(c tbwrap.Context) error {
 	return func(c tbwrap.Context) error {
 		messageID, err := strconv.Atoi(c.Callback().Data)
 		if err != nil {

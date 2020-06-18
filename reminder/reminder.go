@@ -1,6 +1,8 @@
 package reminder
 
 import (
+	"time"
+
 	"github.com/enrico5b1b4/telegram-bot/cron"
 )
 
@@ -53,4 +55,9 @@ type WordDateTime struct {
 	When   WordTimes
 	Hour   int
 	Minute int
+}
+
+type NextScheduleChatTime struct {
+	Time     time.Time
+	Location *time.Location
 }

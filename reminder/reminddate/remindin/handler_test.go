@@ -8,7 +8,6 @@ import (
 
 	"github.com/enrico5b1b4/tbwrap"
 	"github.com/enrico5b1b4/telegram-bot/reminder"
-	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/mocks"
 	"github.com/enrico5b1b4/telegram-bot/reminder/reminddate/remindin"
 	fakeBot "github.com/enrico5b1b4/telegram-bot/telegram/fakes"
@@ -41,7 +40,7 @@ func TestHandleRemindInPattern1(t *testing.T) {
 					Minutes: 2,
 				},
 				"update weekly report").
-			Return(reminddate.NextScheduleChatTime{Time: time.Now(), Location: time.UTC}, nil)
+			Return(reminder.NextScheduleChatTime{Time: time.Now(), Location: time.UTC}, nil)
 
 		err := remindin.HandleRemindIn(mockReminderService)(c)
 		require.NoError(t, err)
@@ -65,7 +64,7 @@ func TestHandleRemindInPattern1(t *testing.T) {
 					Minutes: 2,
 				},
 				"update weekly report").
-			Return(reminddate.NextScheduleChatTime{}, errors.New("error"))
+			Return(reminder.NextScheduleChatTime{}, errors.New("error"))
 
 		err := remindin.HandleRemindIn(mockReminderService)(c)
 		require.Error(t, err)
@@ -97,7 +96,7 @@ func TestHandleRemindInPattern2(t *testing.T) {
 					Minutes: 2,
 				},
 				"update weekly report").
-			Return(reminddate.NextScheduleChatTime{Time: time.Now(), Location: time.UTC}, nil)
+			Return(reminder.NextScheduleChatTime{Time: time.Now(), Location: time.UTC}, nil)
 
 		err := remindin.HandleRemindIn(mockReminderService)(c)
 		require.NoError(t, err)
@@ -121,7 +120,7 @@ func TestHandleRemindInPattern2(t *testing.T) {
 					Minutes: 2,
 				},
 				"update weekly report").
-			Return(reminddate.NextScheduleChatTime{}, errors.New("error"))
+			Return(reminder.NextScheduleChatTime{}, errors.New("error"))
 
 		err := remindin.HandleRemindIn(mockReminderService)(c)
 		require.Error(t, err)
@@ -153,7 +152,7 @@ func TestHandleRemindInPattern3(t *testing.T) {
 					Minutes: 2,
 				},
 				"update weekly report").
-			Return(reminddate.NextScheduleChatTime{Time: time.Now(), Location: time.UTC}, nil)
+			Return(reminder.NextScheduleChatTime{Time: time.Now(), Location: time.UTC}, nil)
 
 		err := remindin.HandleRemindIn(mockReminderService)(c)
 		require.NoError(t, err)
@@ -177,7 +176,7 @@ func TestHandleRemindInPattern3(t *testing.T) {
 					Minutes: 2,
 				},
 				"update weekly report").
-			Return(reminddate.NextScheduleChatTime{}, errors.New("error"))
+			Return(reminder.NextScheduleChatTime{}, errors.New("error"))
 
 		err := remindin.HandleRemindIn(mockReminderService)(c)
 		require.Error(t, err)
