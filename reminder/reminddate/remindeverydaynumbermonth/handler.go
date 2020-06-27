@@ -10,7 +10,6 @@ import (
 )
 
 type Message struct {
-	Who     string `regexpGroup:"who"`
 	Day     int    `regexpGroup:"day"`
 	Month   string `regexpGroup:"month"`
 	Hour    *int   `regexpGroup:"hour"`
@@ -20,7 +19,7 @@ type Message struct {
 }
 
 // nolint:lll
-const HandlePattern = `\/remind (?P<who>me|chat) every (?P<day>\d{1,2})(?:(st|nd|rd|th))? of (?P<month>january|february|march|april|may|june|july|august|september|october|november|december) ?(at (?P<hour>\d{1,2})?((:|.)(?P<minute>\d{1,2}))??(?P<ampm>am|pm)?)? (?P<message>.*)`
+const HandlePattern = `\/remind me every (?P<day>\d{1,2})(?:(st|nd|rd|th))? of (?P<month>january|february|march|april|may|june|july|august|september|october|november|december) ?(at (?P<hour>\d{1,2})?((:|.)(?P<minute>\d{1,2}))??(?P<ampm>am|pm)?)? (?P<message>.*)`
 
 func HandleRemindEveryDayNumberMonth(service reminddate.Servicer) func(c tbwrap.Context) error {
 	return func(c tbwrap.Context) error {

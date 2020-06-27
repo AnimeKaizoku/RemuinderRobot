@@ -10,7 +10,6 @@ import (
 )
 
 type Message struct {
-	Who     string `regexpGroup:"who"`
 	When    string `regexpGroup:"when"`
 	Hour    *int   `regexpGroup:"hour"`
 	Minute  int    `regexpGroup:"minute"`
@@ -19,7 +18,7 @@ type Message struct {
 }
 
 // nolint:lll
-const HandlePattern = `\/remind (?P<who>me|chat) (?P<when>this afternoon|this evening|tonight|tomorrow morning|tomorrow afternoon|tomorrow evening|tomorrow) ?(at (?P<hour>\d{1,2})?((:|.)(?P<minute>\d{1,2}))??(?P<ampm>am|pm)?)? (?P<message>.*)`
+const HandlePattern = `\/remind me (?P<when>this afternoon|this evening|tonight|tomorrow morning|tomorrow afternoon|tomorrow evening|tomorrow) ?(at (?P<hour>\d{1,2})?((:|.)(?P<minute>\d{1,2}))??(?P<ampm>am|pm)?)? (?P<message>.*)`
 
 func HandleRemindWhen(service reminddate.Servicer) func(c tbwrap.Context) error {
 	return func(c tbwrap.Context) error {
