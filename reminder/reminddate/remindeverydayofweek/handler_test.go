@@ -25,7 +25,7 @@ func TestHandleRemindEveryDayOfWeek_Success(t *testing.T) {
 	handlerPattern, err := regexp.Compile(remindeverydayofweek.HandlePattern)
 	require.NoError(t, err)
 	chat := &tb.Chat{ID: int64(1)}
-	testCases := newTestHandleRemindEveryDayOfWeek()
+	testCases := newTestHandleRemindEveryDayOfWeekTestCases()
 
 	for name := range testCases {
 		t.Run(name, func(t *testing.T) {
@@ -50,7 +50,7 @@ func TestHandleRemindEveryDayOfWeek_Success(t *testing.T) {
 	}
 }
 
-func newTestHandleRemindEveryDayOfWeek() map[string]TestCase {
+func newTestHandleRemindEveryDayOfWeekTestCases() map[string]TestCase {
 	return map[string]TestCase{
 		"without hours and minutes": {
 			Text: "/remind me every monday update weekly report",

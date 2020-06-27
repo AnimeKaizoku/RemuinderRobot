@@ -16,17 +16,42 @@ import (
 	tb "gopkg.in/tucnak/telebot.v2"
 )
 
+type TestCase struct {
+	Text                       string
+	ExpectedRepeatableDateTime *reminder.RepeatableDateTime
+}
+
 func TestHandleRemindEveryDay_Success(t *testing.T) {
 	handlerPattern, err := regexp.Compile(remindeveryday.HandlePattern)
 	require.NoError(t, err)
 	chat := &tb.Chat{ID: int64(1)}
+	testCases := newTestHandleRemindEveryDayTestCases()
 
-	type TestCase struct {
-		Text                       string
-		ExpectedRepeatableDateTime *reminder.RepeatableDateTime
+	for name := range testCases {
+		t.Run(name, func(t *testing.T) {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+			bot := fakeBot.NewTBWrapBot()
+			c := tbwrap.NewContext(bot, &tb.Message{Text: testCases[name].Text, Chat: chat}, nil, handlerPattern)
+			mockReminderService := mocks.NewMockServicer(mockCtrl)
+			mockReminderService.
+				EXPECT().
+				AddRepeatableReminderOnDateTime(
+					1,
+					testCases[name].Text,
+					testCases[name].ExpectedRepeatableDateTime,
+					"update weekly report").
+				Return(reminder.NextScheduleChatTime{Time: time.Now(), Location: time.UTC}, nil)
+
+			err := remindeveryday.HandleRemindEveryDay(mockReminderService)(c)
+			require.NoError(t, err)
+			require.Len(t, bot.OutboundSendMessages, 1)
+		})
 	}
+}
 
-	testCases := map[string]TestCase{
+func newTestHandleRemindEveryDayTestCases() map[string]TestCase {
+	return map[string]TestCase{
 		"without hours and minutes": {
 			Text: "/remind me every day update weekly report",
 			ExpectedRepeatableDateTime: &reminder.RepeatableDateTime{
@@ -90,28 +115,79 @@ func TestHandleRemindEveryDay_Success(t *testing.T) {
 				Minute:     "30",
 			},
 		},
-	}
 
-	for name := range testCases {
-		t.Run(name, func(t *testing.T) {
-			mockCtrl := gomock.NewController(t)
-			defer mockCtrl.Finish()
-			bot := fakeBot.NewTBWrapBot()
-			c := tbwrap.NewContext(bot, &tb.Message{Text: testCases[name].Text, Chat: chat}, nil, handlerPattern)
-			mockReminderService := mocks.NewMockServicer(mockCtrl)
-			mockReminderService.
-				EXPECT().
-				AddRepeatableReminderOnDateTime(
-					1,
-					testCases[name].Text,
-					testCases[name].ExpectedRepeatableDateTime,
-					"update weekly report").
-				Return(reminder.NextScheduleChatTime{Time: time.Now(), Location: time.UTC}, nil)
-
-			err := remindeveryday.HandleRemindEveryDay(mockReminderService)(c)
-			require.NoError(t, err)
-			require.Len(t, bot.OutboundSendMessages, 1)
-		})
+		"with time of day and without hours and minutes": {
+			Text: "/remind me every morning update weekly report",
+			ExpectedRepeatableDateTime: &reminder.RepeatableDateTime{
+				DayOfMonth: "*",
+				Month:      "*",
+				Hour:       "9",
+				Minute:     "0",
+			},
+		},
+		"with time of day and hours and minutes": {
+			Text: "/remind me every evening at 23:34 update weekly report",
+			ExpectedRepeatableDateTime: &reminder.RepeatableDateTime{
+				DayOfMonth: "*",
+				Month:      "*",
+				Hour:       "23",
+				Minute:     "34",
+			},
+		},
+		"with time of day and hours and minutes dot separator": {
+			Text: "/remind me every night at 23.34 update weekly report",
+			ExpectedRepeatableDateTime: &reminder.RepeatableDateTime{
+				DayOfMonth: "*",
+				Month:      "*",
+				Hour:       "23",
+				Minute:     "34",
+			},
+		},
+		"with time of day and only hour": {
+			Text: "/remind me every evening at 23 update weekly report",
+			ExpectedRepeatableDateTime: &reminder.RepeatableDateTime{
+				DayOfMonth: "*",
+				Month:      "*",
+				Hour:       "23",
+				Minute:     "0",
+			},
+		},
+		"with time of day and only hour pm": {
+			Text: "/remind me every night at 8pm update weekly report",
+			ExpectedRepeatableDateTime: &reminder.RepeatableDateTime{
+				DayOfMonth: "*",
+				Month:      "*",
+				Hour:       "20",
+				Minute:     "0",
+			},
+		},
+		"with time of day and hour minute pm": {
+			Text: "/remind me every evening at 8:30pm update weekly report",
+			ExpectedRepeatableDateTime: &reminder.RepeatableDateTime{
+				DayOfMonth: "*",
+				Month:      "*",
+				Hour:       "20",
+				Minute:     "30",
+			},
+		},
+		"with time of day and hour minute pm dot separator": {
+			Text: "/remind me every night at 8.30pm update weekly report",
+			ExpectedRepeatableDateTime: &reminder.RepeatableDateTime{
+				DayOfMonth: "*",
+				Month:      "*",
+				Hour:       "20",
+				Minute:     "30",
+			},
+		},
+		"with time of day only": {
+			Text: "/remind me every evening update weekly report",
+			ExpectedRepeatableDateTime: &reminder.RepeatableDateTime{
+				DayOfMonth: "*",
+				Month:      "*",
+				Hour:       "20",
+				Minute:     "0",
+			},
+		},
 	}
 }
 
