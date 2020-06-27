@@ -11,10 +11,10 @@ import (
 
 type Message struct {
 	Day     string `regexpGroup:"day"`
+	When    string `regexpGroup:"when"`
 	Hour    *int   `regexpGroup:"hour"`
 	Minute  int    `regexpGroup:"minute"`
 	AMPM    string `regexpGroup:"ampm"`
-	When    string `regexpGroup:"when"`
 	Message string `regexpGroup:"message"`
 }
 
