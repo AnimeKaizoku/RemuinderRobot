@@ -19,7 +19,7 @@ type Message struct {
 }
 
 // nolint:lll
-const HandlePattern = `\/remind (?P<who>me|chat) every (?P<day>monday|tuesday|wednesday|thursday|friday|saturday|sunday) ?(at (?P<hour>\d{1,2})?((:|.)(?P<minute>\d{1,2}))??(?P<ampm>am|pm)?)? (?P<message>.*)`
+const HandlePattern = `\/remind (?P<who>me|chat) every (?P<day>(((M|m)(on)|(T|t)(ues)|(W|w)(ednes)|(T|t)(hurs)|(F|f)(ri)|(S|s)(atur)|(S|s)(un))(day))) ?(at (?P<hour>\d{1,2})?((:|.)(?P<minute>\d{1,2}))??(?P<ampm>am|pm)?)? (?P<message>.*)`
 
 func HandleRemindEveryDayOfWeek(service reminddate.Servicer) func(c tbwrap.Context) error {
 	return func(c tbwrap.Context) error {
