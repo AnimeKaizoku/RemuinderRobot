@@ -34,20 +34,6 @@ func (m *MockServicer) EXPECT() *MockServicerMockRecorder {
 	return m.recorder
 }
 
-// AddReminderRepeatSchedule mocks base method
-func (m *MockServicer) AddReminderRepeatSchedule(arg0 *reminder.Reminder) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddReminderRepeatSchedule", arg0)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// AddReminderRepeatSchedule indicates an expected call of AddReminderRepeatSchedule
-func (mr *MockServicerMockRecorder) AddReminderRepeatSchedule(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddReminderRepeatSchedule", reflect.TypeOf((*MockServicer)(nil).AddReminderRepeatSchedule), arg0)
-}
-
 // Complete mocks base method
 func (m *MockServicer) Complete(arg0 *reminder.Reminder) error {
 	m.ctrl.T.Helper()
@@ -60,4 +46,18 @@ func (m *MockServicer) Complete(arg0 *reminder.Reminder) error {
 func (mr *MockServicerMockRecorder) Complete(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Complete", reflect.TypeOf((*MockServicer)(nil).Complete), arg0)
+}
+
+// UpdateReminderWithRepeatSchedule mocks base method
+func (m *MockServicer) UpdateReminderWithRepeatSchedule(arg0 *reminder.Reminder) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateReminderWithRepeatSchedule", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateReminderWithRepeatSchedule indicates an expected call of UpdateReminderWithRepeatSchedule
+func (mr *MockServicerMockRecorder) UpdateReminderWithRepeatSchedule(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateReminderWithRepeatSchedule", reflect.TypeOf((*MockServicer)(nil).UpdateReminderWithRepeatSchedule), arg0)
 }

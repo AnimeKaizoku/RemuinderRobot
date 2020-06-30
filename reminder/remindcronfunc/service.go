@@ -15,7 +15,7 @@ import (
 
 type Servicer interface {
 	Complete(r *reminder.Reminder) error
-	AddReminderRepeatSchedule(rem *reminder.Reminder) error
+	UpdateReminderWithRepeatSchedule(rem *reminder.Reminder) error
 }
 
 type Service struct {
@@ -53,7 +53,7 @@ func (s *Service) Complete(r *reminder.Reminder) error {
 	return nil
 }
 
-func (s *Service) AddReminderRepeatSchedule(rem *reminder.Reminder) error {
+func (s *Service) UpdateReminderWithRepeatSchedule(rem *reminder.Reminder) error {
 	chatPreference, err := s.chatPreferenceStore.GetChatPreference(rem.Job.ChatID)
 	if err != nil {
 		return err
@@ -76,30 +76,19 @@ func (s *Service) AddReminderRepeatSchedule(rem *reminder.Reminder) error {
 		addedTime.Day(),
 		addedTime.Month(),
 	)
-	newReminder := &reminder.Reminder{
-		Job: cron.Job{
-			ChatID:         rem.ChatID,
-			Schedule:       schedule,
-			Type:           cron.Reminder,
-			Status:         cron.Active,
-			RunOnlyOnce:    true,
-			RepeatSchedule: rem.RepeatSchedule,
-		},
-		Data: reminder.Data{
-			RecipientID: rem.ChatID,
-			Message:     rem.Data.Message,
-			Command:     rem.Data.Command,
-		},
-	}
+	rem.Job.Schedule = schedule
+
+	// remove previous cron job before scheduling new one
+	s.scheduler.Remove(rem.CronID)
 
 	scheduleWithTZ := fmt.Sprintf("CRON_TZ=%s %s", chatPreference.TimeZone, schedule)
-	reminderCronID, err := s.scheduler.Add(scheduleWithTZ, New(s, s.b, newReminder))
+	reminderCronID, err := s.scheduler.Add(scheduleWithTZ, New(s, s.b, rem))
 	if err != nil {
 		return err
 	}
 
-	newReminder.CronID = reminderCronID
-	_, err = s.reminderStore.CreateReminder(newReminder)
+	rem.CronID = reminderCronID
+	err = s.reminderStore.UpdateReminder(rem)
 	if err != nil {
 		return err
 	}

@@ -12,18 +12,32 @@ import (
 )
 
 // New creates a function which is called when a reminder is due
+// Note: repeatable jobs can be of two kinds:
+// - Reminders set as "remind me every 31 april at 13:52" will have a cron job like "52 13 31 April *"
+//   These are occurrences which occur once a year
+//   In this case RunOnlyOnce = false as we want to keep the schedule
+// - Reminders set as "remind me every 3 minutes" will have a cron job set on a very specific date like "46 15 4 4 *".
+//   These reminders are set with RunOnlyOnce = true as they should only run once.
+//   They will have a RepeatSchedule which will reschedule the job for the following occurrence (e.g. in 3 minutes from now)
 func New(s Servicer, b telegram.TBWrapBot, r *reminder.Reminder) func() {
 	return func() {
 		buttons := NewButtons()
 		var inlineKeys [][]telebot.InlineButton
+		var inlineButtons []telebot.InlineButton
 
-		snooze15MinuteBtn := *buttons[Snooze15MinuteBtn]
-		snooze15MinuteBtn.Data = strconv.Itoa(r.ID)
-		snooze30MinuteBtn := *buttons[Snooze30MinuteBtn]
-		snooze30MinuteBtn.Data = strconv.Itoa(r.ID)
+		snooze20MinuteBtn := *buttons[Snooze20MinuteBtn]
+		snooze20MinuteBtn.Data = strconv.Itoa(r.ID)
 		snooze1HourBtn := *buttons[Snooze1HourBtn]
 		snooze1HourBtn.Data = strconv.Itoa(r.ID)
-		inlineKeys = append(inlineKeys, []telebot.InlineButton{snooze15MinuteBtn, snooze30MinuteBtn, snooze1HourBtn})
+		inlineButtons = append(inlineButtons, snooze20MinuteBtn, snooze1HourBtn)
+
+		// if repeatable job add button to complete it
+		if !r.Job.RunOnlyOnce || (r.Job.RunOnlyOnce && r.Job.RepeatSchedule != nil) {
+			completeBtn := *buttons[CompleteBtn]
+			completeBtn.Data = strconv.Itoa(r.ID)
+			inlineButtons = append(inlineButtons, completeBtn)
+		}
+		inlineKeys = append(inlineKeys, inlineButtons)
 
 		messageWithIcon := fmt.Sprintf("🗓 %s", r.Data.Message)
 		_, err := b.Send(&tb.Chat{ID: int64(r.Data.RecipientID)}, messageWithIcon, &telebot.ReplyMarkup{
@@ -38,18 +52,19 @@ func New(s Servicer, b telegram.TBWrapBot, r *reminder.Reminder) func() {
 			return
 		}
 
+		if r.Job.RepeatSchedule != nil {
+			updateErr := s.UpdateReminderWithRepeatSchedule(r)
+			if updateErr != nil {
+				log.Printf("NewReminderCronFunc UpdateReminderWithRepeatSchedule err: %q", updateErr)
+				return
+			}
+			return
+		}
+
 		err = s.Complete(r)
 		if err != nil {
 			log.Printf("NewReminderCronFunc complete err: %q", err)
 			return
-		}
-
-		if r.Job.RepeatSchedule != nil {
-			err := s.AddReminderRepeatSchedule(r)
-			if err != nil {
-				log.Printf("NewReminderCronFunc AddReminderRepeatSchedule err: %q", err)
-				return
-			}
 		}
 	}
 }

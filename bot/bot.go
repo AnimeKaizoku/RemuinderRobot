@@ -54,7 +54,7 @@ func New(
 	setTimeZoneService := settimezone.NewService(chatPreferenceStore, reminderLoader)
 	remindDetailButtons := reminddetail.NewButtons()
 	remindListButtons := remindlist.NewButtons()
-	remindSnoozeButtons := remindcronfunc.NewButtons()
+	reminderCompleteButtons := remindcronfunc.NewButtons()
 
 	chatPreferenceService.CreateDefaultChatPreferences(allowedChats)
 
@@ -142,16 +142,16 @@ func New(
 		remindlist.HandleCloseBtn(),
 	)
 	telegramBot.HandleButton(
-		remindSnoozeButtons[remindcronfunc.Snooze15MinuteBtn],
-		remindcronfunc.HandleReminderSnoozeBtn(remindDateService, reminderStore, reminder.AmountDateTime{Minutes: 15}),
+		reminderCompleteButtons[remindcronfunc.Snooze20MinuteBtn],
+		remindcronfunc.HandleReminderSnoozeBtn(remindDateService, reminderStore, reminder.AmountDateTime{Minutes: 20}),
 	)
 	telegramBot.HandleButton(
-		remindSnoozeButtons[remindcronfunc.Snooze30MinuteBtn],
-		remindcronfunc.HandleReminderSnoozeBtn(remindDateService, reminderStore, reminder.AmountDateTime{Minutes: 30}),
-	)
-	telegramBot.HandleButton(
-		remindSnoozeButtons[remindcronfunc.Snooze1HourBtn],
+		reminderCompleteButtons[remindcronfunc.Snooze1HourBtn],
 		remindcronfunc.HandleReminderSnoozeBtn(remindDateService, reminderStore, reminder.AmountDateTime{Minutes: 60}),
+	)
+	telegramBot.HandleButton(
+		reminderCompleteButtons[remindcronfunc.CompleteBtn],
+		remindcronfunc.HandleReminderCompleteBtn(remindCronFuncService, reminderStore),
 	)
 
 	return &Bot{
