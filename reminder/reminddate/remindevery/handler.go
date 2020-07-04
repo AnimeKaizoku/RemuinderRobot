@@ -20,11 +20,7 @@ type Message struct {
 }
 
 // nolint:lll
-const (
-	HandlePattern3 = `\/remind me every (?P<amount1>\d{1,2}) (?P<measure1>minute|minutes|hour|hours|day|days), (?P<amount2>\d{1,2}) (?P<measure2>minute|minutes|hour|hours|day|days), (?P<amount3>\d{1,2}) (?P<measure3>minute|minutes|hour|hours|day|days) (?P<message>.*)`
-	HandlePattern2 = `\/remind me every (?P<amount1>\d{1,2}) (?P<measure1>minute|minutes|hour|hours|day|days), (?P<amount2>\d{1,2}) (?P<measure2>minute|minutes|hour|hours|day|days) (?P<message>.*)`
-	HandlePattern1 = `\/remind me every (?P<amount1>\d{1,2}) (?P<measure1>minute|minutes|hour|hours|day|days) (?P<message>.*)`
-)
+const HandlePattern = `\/remind me every (?P<amount1>\d{1,2}) (?P<measure1>minute|minutes|hour|hours|day|days)?(, (?P<amount2>\d{1,2}) (?P<measure2>minute|minutes|hour|hours|day|days)?(, (?P<amount3>\d{1,2}) (?P<measure3>minute|minutes|hour|hours|day|days))?)? (?P<message>.*)`
 
 func HandleRemindEvery(service reminddate.Servicer) func(c tbwrap.Context) error {
 	return func(c tbwrap.Context) error {

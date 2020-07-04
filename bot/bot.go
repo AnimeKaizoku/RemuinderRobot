@@ -85,20 +85,12 @@ func New(
 		remindeverydaynumbermonth.HandlePattern,
 		remindeverydaynumbermonth.HandleRemindEveryDayNumberMonth(remindDateService),
 	)
-	telegramBot.HandleMultiRegExp(
-		[]string{
-			remindin.HandlePattern3,
-			remindin.HandlePattern2,
-			remindin.HandlePattern1,
-		},
+	telegramBot.HandleRegExp(
+		remindin.HandlePattern,
 		remindin.HandleRemindIn(remindDateService),
 	)
-	telegramBot.HandleMultiRegExp(
-		[]string{
-			remindevery.HandlePattern3,
-			remindevery.HandlePattern2,
-			remindevery.HandlePattern1,
-		},
+	telegramBot.HandleRegExp(
+		remindevery.HandlePattern,
 		remindevery.HandleRemindEvery(remindDateService),
 	)
 	telegramBot.HandleRegExp(

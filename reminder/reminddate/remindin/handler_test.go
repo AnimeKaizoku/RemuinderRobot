@@ -18,7 +18,7 @@ import (
 
 // nolint:dupl
 func TestHandleRemindInPattern1(t *testing.T) {
-	handlerPattern, err := regexp.Compile(remindin.HandlePattern1)
+	handlerPattern, err := regexp.Compile(remindin.HandlePattern)
 	require.NoError(t, err)
 	text := "/remind me in 2 minutes update weekly report"
 	chat := &tb.Chat{ID: int64(1)}
@@ -74,7 +74,7 @@ func TestHandleRemindInPattern1(t *testing.T) {
 
 // nolint:dupl
 func TestHandleRemindInPattern2(t *testing.T) {
-	handlerPattern, err := regexp.Compile(remindin.HandlePattern2)
+	handlerPattern, err := regexp.Compile(remindin.HandlePattern)
 	require.NoError(t, err)
 	text := "/remind me in 2 minutes, 3 days update weekly report"
 	chat := &tb.Chat{ID: int64(1)}
@@ -130,7 +130,7 @@ func TestHandleRemindInPattern2(t *testing.T) {
 
 // nolint:dupl
 func TestHandleRemindInPattern3(t *testing.T) {
-	handlerPattern, err := regexp.Compile(remindin.HandlePattern3)
+	handlerPattern, err := regexp.Compile(remindin.HandlePattern)
 	require.NoError(t, err)
 	text := "/remind me in 2 minutes, 1 hour, 3 days update weekly report"
 	chat := &tb.Chat{ID: int64(1)}
