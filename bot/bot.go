@@ -134,12 +134,68 @@ func New(
 		remindlist.HandleCloseBtn(),
 	)
 	telegramBot.HandleButton(
+		reminderCompleteButtons[remindcronfunc.Snooze10MinuteBtn],
+		remindcronfunc.HandleReminderSnoozeAmountDateTimeBtn(remindDateService, reminderStore, reminder.AmountDateTime{Minutes: 10}),
+	)
+	telegramBot.HandleButton(
 		reminderCompleteButtons[remindcronfunc.Snooze20MinuteBtn],
-		remindcronfunc.HandleReminderSnoozeBtn(remindDateService, reminderStore, reminder.AmountDateTime{Minutes: 20}),
+		remindcronfunc.HandleReminderSnoozeAmountDateTimeBtn(remindDateService, reminderStore, reminder.AmountDateTime{Minutes: 20}),
+	)
+	telegramBot.HandleButton(
+		reminderCompleteButtons[remindcronfunc.Snooze30MinuteBtn],
+		remindcronfunc.HandleReminderSnoozeAmountDateTimeBtn(remindDateService, reminderStore, reminder.AmountDateTime{Minutes: 30}),
 	)
 	telegramBot.HandleButton(
 		reminderCompleteButtons[remindcronfunc.Snooze1HourBtn],
-		remindcronfunc.HandleReminderSnoozeBtn(remindDateService, reminderStore, reminder.AmountDateTime{Minutes: 60}),
+		remindcronfunc.HandleReminderSnoozeAmountDateTimeBtn(remindDateService, reminderStore, reminder.AmountDateTime{Minutes: 60}),
+	)
+	telegramBot.HandleButton(
+		reminderCompleteButtons[remindcronfunc.SnoozeThisAfternoonBtn],
+		remindcronfunc.HandleReminderSnoozeWordDateTimeBtn(remindDateService, reminderStore, reminder.WordDateTime{
+			When:   reminder.Today,
+			Hour:   15,
+			Minute: 0,
+		}),
+	)
+	telegramBot.HandleButton(
+		reminderCompleteButtons[remindcronfunc.SnoozeThisEveningBtn],
+		remindcronfunc.HandleReminderSnoozeWordDateTimeBtn(remindDateService, reminderStore, reminder.WordDateTime{
+			When:   reminder.Today,
+			Hour:   20,
+			Minute: 0,
+		}),
+	)
+	telegramBot.HandleButton(
+		reminderCompleteButtons[remindcronfunc.SnoozeTomorrowMorningBtn],
+		remindcronfunc.HandleReminderSnoozeWordDateTimeBtn(remindDateService, reminderStore, reminder.WordDateTime{
+			When:   reminder.Tomorrow,
+			Hour:   9,
+			Minute: 0,
+		}),
+	)
+	telegramBot.HandleButton(
+		reminderCompleteButtons[remindcronfunc.SnoozeTomorrowAfternoonBtn],
+		remindcronfunc.HandleReminderSnoozeWordDateTimeBtn(remindDateService, reminderStore, reminder.WordDateTime{
+			When:   reminder.Tomorrow,
+			Hour:   15,
+			Minute: 0,
+		}),
+	)
+	telegramBot.HandleButton(
+		reminderCompleteButtons[remindcronfunc.SnoozeTomorrowEveningBtn],
+		remindcronfunc.HandleReminderSnoozeWordDateTimeBtn(remindDateService, reminderStore, reminder.WordDateTime{
+			When:   reminder.Tomorrow,
+			Hour:   20,
+			Minute: 0,
+		}),
+	)
+	telegramBot.HandleButton(
+		reminderCompleteButtons[remindcronfunc.SnoozeMoreBtn],
+		remindcronfunc.HandleReminderSnoozeMoreBtn(reminderStore),
+	)
+	telegramBot.HandleButton(
+		reminderCompleteButtons[remindcronfunc.SnoozeMoreCloseBtn],
+		remindcronfunc.HandleReminderSnoozeMoreCloseBtn(),
 	)
 	telegramBot.HandleButton(
 		reminderCompleteButtons[remindcronfunc.CompleteBtn],

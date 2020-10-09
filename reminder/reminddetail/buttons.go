@@ -98,11 +98,6 @@ func HandleCloseBtn() func(c tbwrap.Context) error {
 			return err
 		}
 
-		err = c.Delete(c.ChatID(), c.Message().ID)
-		if err != nil {
-			return err
-		}
-
-		return nil
+		return c.Delete(c.ChatID(), c.Message().ID)
 	}
 }

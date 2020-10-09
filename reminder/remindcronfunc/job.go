@@ -25,11 +25,12 @@ func New(s Servicer, b telegram.TBWrapBot, r *reminder.Reminder) func() {
 		var inlineKeys [][]telebot.InlineButton
 		var inlineButtons []telebot.InlineButton
 
-		snooze20MinuteBtn := *buttons[Snooze20MinuteBtn]
-		snooze20MinuteBtn.Data = strconv.Itoa(r.ID)
-		snooze1HourBtn := *buttons[Snooze1HourBtn]
-		snooze1HourBtn.Data = strconv.Itoa(r.ID)
-		inlineButtons = append(inlineButtons, snooze20MinuteBtn, snooze1HourBtn)
+		snoozeMoreBtn := *buttons[SnoozeMoreBtn]
+		snoozeMoreBtn.Data = strconv.Itoa(r.ID)
+		inlineButtons = append(
+			inlineButtons,
+			snoozeMoreBtn,
+		)
 
 		// if repeatable job add button to complete it
 		if !r.Job.RunOnlyOnce || (r.Job.RunOnlyOnce && r.Job.RepeatSchedule != nil) {
