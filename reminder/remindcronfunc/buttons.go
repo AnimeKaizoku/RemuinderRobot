@@ -105,6 +105,7 @@ type RemindDateServicer interface {
 	) (reminder.NextScheduleChatTime, error)
 }
 
+// nolint:dupl
 func HandleReminderSnoozeAmountDateTimeBtn(
 	service RemindDateServicer,
 	store reminder.Storer,
@@ -144,6 +145,7 @@ func HandleReminderSnoozeAmountDateTimeBtn(
 	}
 }
 
+// nolint:dupl
 func HandleReminderSnoozeWordDateTimeBtn(
 	service RemindDateServicer,
 	store reminder.Storer,

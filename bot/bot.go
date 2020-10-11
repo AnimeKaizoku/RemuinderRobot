@@ -35,6 +35,7 @@ type Bot struct {
 	telegramBot   telegram.TBWrapBot
 }
 
+// nolint:funlen
 func New(
 	allowedChats []int,
 	database *bbolt.DB,
