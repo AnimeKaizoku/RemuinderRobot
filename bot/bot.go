@@ -191,12 +191,12 @@ func New(
 		}),
 	)
 	telegramBot.HandleButton(
-		reminderCompleteButtons[remindcronfunc.SnoozeMoreBtn],
-		remindcronfunc.HandleReminderSnoozeMoreBtn(reminderStore),
+		reminderCompleteButtons[remindcronfunc.SnoozeBtn],
+		remindcronfunc.HandleReminderSnoozeBtn(reminderStore),
 	)
 	telegramBot.HandleButton(
-		reminderCompleteButtons[remindcronfunc.SnoozeMoreCloseBtn],
-		remindcronfunc.HandleReminderSnoozeMoreCloseBtn(),
+		reminderCompleteButtons[remindcronfunc.SnoozeCloseBtn],
+		remindcronfunc.HandleReminderSnoozeCloseBtn(),
 	)
 	telegramBot.HandleButton(
 		reminderCompleteButtons[remindcronfunc.CompleteBtn],

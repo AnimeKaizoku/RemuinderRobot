@@ -19,8 +19,8 @@ const (
 	SnoozeTomorrowMorningBtn   = "SnoozeTomorrowMorningBtn"
 	SnoozeTomorrowAfternoonBtn = "SnoozeTomorrowAfternoonBtn"
 	SnoozeTomorrowEveningBtn   = "SnoozeTomorrowEveningBtn"
-	SnoozeMoreBtn              = "SnoozeMoreBtn"
-	SnoozeMoreCloseBtn         = "SnoozeMoreCloseBtn"
+	SnoozeBtn                  = "SnoozeBtn"
+	SnoozeCloseBtn             = "SnoozeCloseBtn"
 	CompleteBtn                = "CompleteBtn"
 )
 
@@ -61,12 +61,12 @@ func NewButtons() map[string]*telebot.InlineButton {
 		Unique: SnoozeTomorrowEveningBtn,
 		Text:   "⏰ Tomorrow Evening",
 	}
-	snoozeMoreBtn := telebot.InlineButton{
-		Unique: SnoozeMoreBtn,
-		Text:   "⏰ More",
+	snoozeBtn := telebot.InlineButton{
+		Unique: SnoozeBtn,
+		Text:   "⏰ Snooze",
 	}
-	snoozeMoreCloseBtn := telebot.InlineButton{
-		Unique: SnoozeMoreCloseBtn,
+	snoozeCloseBtn := telebot.InlineButton{
+		Unique: SnoozeCloseBtn,
 		Text:   "❌ Close",
 	}
 	completeBtn := telebot.InlineButton{
@@ -85,8 +85,8 @@ func NewButtons() map[string]*telebot.InlineButton {
 		SnoozeTomorrowAfternoonBtn: &snoozeTomorrowAfternoonBtn,
 		SnoozeTomorrowEveningBtn:   &snoozeTomorrowEveningBtn,
 		CompleteBtn:                &completeBtn,
-		SnoozeMoreBtn:              &snoozeMoreBtn,
-		SnoozeMoreCloseBtn:         &snoozeMoreCloseBtn,
+		SnoozeBtn:                  &snoozeBtn,
+		SnoozeCloseBtn:             &snoozeCloseBtn,
 	}
 }
 
@@ -219,7 +219,7 @@ func HandleReminderCompleteBtn(
 	}
 }
 
-func HandleReminderSnoozeMoreBtn(store reminder.Storer) func(c tbwrap.Context) error {
+func HandleReminderSnoozeBtn(store reminder.Storer) func(c tbwrap.Context) error {
 	return func(c tbwrap.Context) error {
 		err := c.Respond(c.Callback())
 		if err != nil {
@@ -256,9 +256,9 @@ func HandleReminderSnoozeMoreBtn(store reminder.Storer) func(c tbwrap.Context) e
 		snoozeTomorrowAfternoonBtn.Data = strconv.Itoa(reminderID)
 		snoozeTomorrowEveningBtn := *buttons[SnoozeTomorrowEveningBtn]
 		snoozeTomorrowEveningBtn.Data = strconv.Itoa(reminderID)
-		snoozeMoreBtn := *buttons[SnoozeMoreBtn]
-		snoozeMoreBtn.Data = strconv.Itoa(reminderID)
-		snoozeMoreCloseBtn := *buttons[SnoozeMoreCloseBtn]
+		snoozeBtn := *buttons[SnoozeBtn]
+		snoozeBtn.Data = strconv.Itoa(reminderID)
+		snoozeCloseBtn := *buttons[SnoozeCloseBtn]
 
 		inlineKeys := [][]telebot.InlineButton{
 			{
@@ -282,7 +282,7 @@ func HandleReminderSnoozeMoreBtn(store reminder.Storer) func(c tbwrap.Context) e
 				snoozeTomorrowEveningBtn,
 			},
 			{
-				snoozeMoreCloseBtn,
+				snoozeCloseBtn,
 			},
 		}
 
@@ -298,7 +298,7 @@ func HandleReminderSnoozeMoreBtn(store reminder.Storer) func(c tbwrap.Context) e
 	}
 }
 
-func HandleReminderSnoozeMoreCloseBtn() func(c tbwrap.Context) error {
+func HandleReminderSnoozeCloseBtn() func(c tbwrap.Context) error {
 	return func(c tbwrap.Context) error {
 		return c.Delete(c.ChatID(), c.Message().ID)
 	}
