@@ -9,6 +9,8 @@ import (
 	"go.etcd.io/bbolt"
 )
 
+// SetupDB creates a root reminders bucket
+// Buckets are then created in the root bucket for each chat
 func SetupDB(filename string, chats []int) (*bbolt.DB, error) {
 	db, err := bbolt.Open(filename, 0600, nil)
 	if err != nil {
